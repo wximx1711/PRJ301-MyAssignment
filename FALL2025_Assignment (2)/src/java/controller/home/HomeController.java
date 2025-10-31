@@ -1,30 +1,25 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package controller.home;
 
 import controller.iam.BaseRequiredAuthenticationController;
-import jakarta.servlet.ServletException;
+import dal.RoleDBContext;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import java.io.IOException;
-import model.iam.User;
+import java.util.Set;
 
-/**
- *
- * @author sonnt
- */
-@WebServlet(urlPatterns = "/home")
+@WebServlet("/home")
 public class HomeController extends BaseRequiredAuthenticationController {
-
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
+    protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        var user = (model.iam.User) req.getSession().getAttribute("user");
+        try (RoleDBContext rdb = new RoleDBContext()) {
+            Set<String> features = rdb.getFeatureUrls(user.getUid());
+            req.setAttribute("features", features);
+        }
+        req.getRequestDispatcher("/view/util/greeting.jsp").forward(req, resp);
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
-    }
-    
+    protected void processPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException { }
 }

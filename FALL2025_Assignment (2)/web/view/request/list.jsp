@@ -1,58 +1,68 @@
-<%-- 
-    Document   : list
-    Created on : Oct 21, 2025, 10:37:00 PM
-    Author     : sonnt
---%>
-
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*,model.RequestForLeave" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <jsp:include page="../util/greeting.jsp"></jsp:include>
-            <table border="1px">
-                <tr>
-                    <td>request id</td>
-                    <td>created by</td>
-                    <td>reason</td>
-                    <td>from</td>
-                    <td>to</td>
-                    <td>status</td>
-                    <td>processed by</td>
-                </tr>
-            <c:forEach items="${requestScope.rfls}" var="r">
-                <tr>
-                    <td>${r.id}</td>
-                    <td>${r.created_by.name}</td>
-                    <td>${r.reason}</td>
-                    <td>${r.from}</td>
-                    <td>${r.to}</td>
-                    <td>
-                        ${r.status eq 0?"processing":
-                          r.status eq 1?"approved":"rejected"
-                        }
-                    </td>
-                    <td>
-                        <c:if test="${r.processed_by ne null}">
-                            ${r.processed_by.name}, you can change it to
-                            <c:if test="${r.status eq 1}">
-                            <a href="review">Rejected</a>
-                            </c:if>
-                             <c:if test="${r.status eq 2}">
-                            <a href="review">Approved</a>
-                            </c:if>
-                        </c:if>
-                        <c:if test="${r.processed_by eq null}">
-                            <a href="review">Approve</a>
-                            <a href="review">Reject</a>
-                        </c:if>
-                    </td>
-                </tr>
-            </c:forEach>
-        </table>
-    </body>
-</html>
+<html><head>
+  <meta charset="UTF-8"><title>Danh sách đơn</title>
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/css/app.css">
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="brand"><div class="logo"></div><span>LM System</span></div>
+      <div class="grow"></div>
+      <a class="btn" href="<%=request.getContextPath()%>/home">Home</a>
+      <a class="btn" href="<%=request.getContextPath()%>/logout">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2 style="margin:10px 0">My Requests</h2>
+    <table class="table">
+      <tr>
+        <th>RID</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th>Processed By</th>
+      </tr>
+      <%
+        List<RequestForLeave> mine = (List<RequestForLeave>) request.getAttribute("mine");
+        if (mine != null) for (RequestForLeave r : mine) {
+          String cls = r.getStatus()==1?"bOk":(r.getStatus()==2?"bRej":"bInp");
+          String txt = r.getStatus()==1?"Approved":(r.getStatus()==2?"Rejected":"Inprogress");
+      %>
+      <tr>
+        <td><%=r.getRid()%></td>
+        <td><%=r.getFromDate()%></td>
+        <td><%=r.getToDate()%></td>
+        <td><%= (r.getReason()==null||r.getReason().isBlank())?"(no title)":r.getReason() %></td>
+        <td><span class="badgeS <%=cls%>"><%=txt%></span></td>
+        <td><%= r.getProcessedByName()==null?"-":r.getProcessedByName() %></td>
+      </tr>
+      <% } %>
+    </table>
+
+    <h2 id="review" style="margin:16px 0 10px">Subordinates' Requests</h2>
+    <form method="post" action="<%=request.getContextPath()%>/request/review">
+      <table class="table">
+        <tr>
+          <th>RID</th><th>From</th><th>To</th><th>Created By</th><th>Status</th><th>Action</th>
+        </tr>
+        <%
+          List<RequestForLeave> subs = (List<RequestForLeave>) request.getAttribute("subs");
+          if (subs != null) for (RequestForLeave r : subs) {
+            String txt = r.getStatus()==1?"Approved":(r.getStatus()==2?"Rejected":"Inprogress");
+        %>
+        <tr>
+          <td><%=r.getRid()%></td>
+          <td><%=r.getFromDate()%></td>
+          <td><%=r.getToDate()%></td>
+          <td><%=r.getCreatedByName()%></td>
+          <td><%=txt%></td>
+          <td class="action">
+            <input type="hidden" name="rid" value="<%=r.getRid()%>">
+            <button name="status" value="1">Approve</button>
+            <button name="status" value="2">Reject</button>
+          </td>
+        </tr>
+        <% } %>
+      </table>
+    </form>
+  </div>
+</body></html>

@@ -1,42 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package controller.request;
 
 import controller.iam.BaseRequiredAuthorizationController;
 import dal.RequestForLeaveDBContext;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import model.RequestForLeave;
-import model.iam.User;
 
-/**
- *
- * @author sonnt
- */
-@WebServlet(urlPatterns = "/request/list")
+@WebServlet("/request/list")
 public class ListController extends BaseRequiredAuthorizationController {
+    @Override protected String featureUrl(HttpServletRequest req) { return "/request/list"; }
 
-    protected void processRequest(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
+    @Override
+    protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        var user = (model.iam.User) req.getSession().getAttribute("user");
         RequestForLeaveDBContext db = new RequestForLeaveDBContext();
-        ArrayList<RequestForLeave> rfls = db.getByEmployeeAndSubodiaries(user.getId());
-        req.setAttribute("rfls", rfls);
-        req.getRequestDispatcher("../view/request/list.jsp").forward(req, resp);
+        int myEid = db.getMyEid(user.getUid());
+        req.setAttribute("mine", db.listMine(myEid));
+        req.setAttribute("subs", db.listOfSubordinates(myEid));
+        req.getRequestDispatcher("/view/request/list.jsp").forward(req, resp);
     }
 
     @Override
-    protected void processPost(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
-        processRequest(req, resp, user);
-    }
-
-    @Override
-    protected void processGet(HttpServletRequest req, HttpServletResponse resp, User user) throws ServletException, IOException {
-        processRequest(req, resp, user);
-    }
-
+    protected void processPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException { }
 }

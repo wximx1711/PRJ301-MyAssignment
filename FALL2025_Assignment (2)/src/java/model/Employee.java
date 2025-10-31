@@ -1,40 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author sonnt
- */
 public class Employee extends BaseModel {
-    private String name;
-    private Department dept; 
-    private Employee supervisor;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Department getDept() {
-        return dept;
-    }
-
-    public void setDept(Department dept) {
-        this.dept = dept;
-    }
-
-    public Employee getSupervisor() {
-        return supervisor;
-    }
-
-    public void setSupervisor(Employee supervisor) {
-        this.supervisor = supervisor;
-    }
+    private int eid;
+    private String ename;
+    private int did;
+    private Integer supervisorId;
     
+    public int getEid() { return eid; }
+    public void setEid(int eid) { this.eid = eid; }
+    
+    public String getEname() { return ename; }
+    public void setEname(String ename) { this.ename = ename; }
+    
+    public int getDid() { return did; }
+    public void setDid(int did) { this.did = did; }
+    
+    public Integer getSupervisorId() { return supervisorId; }
+    public void setSupervisorId(Integer supervisorId) { this.supervisorId = supervisorId; }
 }

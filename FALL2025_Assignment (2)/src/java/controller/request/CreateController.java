@@ -10,7 +10,7 @@ import java.sql.Date;
 
 @WebServlet("/request/create")
 public class CreateController extends BaseRequiredAuthorizationController {
-    @Override protected String featureUrl(HttpServletRequest req) { return "/request/create"; }
+    protected String featureUrl(HttpServletRequest req) { return "/request/create"; }
 
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

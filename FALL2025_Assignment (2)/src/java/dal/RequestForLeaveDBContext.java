@@ -2,6 +2,7 @@ package dal;
 
 import model.RequestForLeave;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 public class RequestForLeaveDBContext extends DBContext {
@@ -23,7 +24,7 @@ public class RequestForLeaveDBContext extends DBContext {
             ResultSet rs = stm.executeQuery();
             return mapWithNames(rs);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error fetching leave requests for user " + myEid, e);
         }
     }
 
@@ -44,7 +45,7 @@ public class RequestForLeaveDBContext extends DBContext {
             ResultSet rs = stm.executeQuery();
             return mapWithNames(rs);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error fetching subordinates' leave requests", e);
         }
     }
 
@@ -61,11 +62,23 @@ public class RequestForLeaveDBContext extends DBContext {
             r.setReason(rs.getString("reason"));
             r.setStatus(rs.getInt("status"));
             int pb = rs.getInt("processed_by");
-            r.setProcessedBy(rs.wasNull() ? null : pb);
+            r.setProcessedBy(rs.wasNull() ? null : pb); // xử lý null
             r.setCreatedByName(rs.getString("created_by_name"));
             r.setProcessedByName(rs.getString("processed_by_name"));
             list.add(r);
         }
         return list;
+    }
+
+    public void approveOrReject(int uid, int rid, int status, String note) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public int getMyEid(int uid) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public void create(int uid, Date from, Date to, String reason) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

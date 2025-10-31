@@ -11,7 +11,7 @@ import java.util.*;
 
 @WebServlet("/division/agenda")
 public class ViewAgendaController extends BaseRequiredAuthorizationController {
-    @Override protected String featureUrl(HttpServletRequest req) { return "/division/agenda"; }
+    protected String featureUrl(HttpServletRequest req) { return "/division/agenda"; }
 
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

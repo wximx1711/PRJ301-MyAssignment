@@ -9,7 +9,10 @@ import java.io.IOException;
 
 @WebServlet("/request/review")
 public class ReviewController extends BaseRequiredAuthorizationController {
-    protected String featureUrl(HttpServletRequest req) { return "/request/review"; }
+    @Override
+    protected String featureUrl(HttpServletRequest req) {
+        return "/request/review";
+    }
 
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

@@ -363,4 +363,5 @@ BEGIN
 END
 GO
 
-PRINT '✅ Setup v2 completed successfully.';
+
+PRINT '✅ Setup v2 completed successfully.'; 

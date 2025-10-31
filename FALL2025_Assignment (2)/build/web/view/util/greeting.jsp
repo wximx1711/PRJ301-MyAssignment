@@ -24,14 +24,14 @@
         <p>Thông tin nhân viên: <%= u.getEmployee() != null ? u.getEmployee().getEname() : "Chưa có thông tin" %></p>
 
         <div class="product-list">
-            <div class="product-card">
+            <div class="card">
                 <h2>Thông tin nhanh</h2>
                 <p class="kpi">12</p>
                 <p class="kpi-title">Đơn nghỉ phép chờ duyệt</p>
                 <a class="link" href="<%=request.getContextPath()%>/request/list">Xem chi tiết</a>
             </div>
             
-            <div class="product-card">
+            <div class="card">
                 <h2>Thông tin nhân viên</h2>
                 <p class="kpi">50</p>
                 <p class="kpi-title">Số nhân viên đã nghỉ</p>

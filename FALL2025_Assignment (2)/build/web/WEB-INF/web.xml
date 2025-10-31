@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <!-- Định nghĩa Servlet cho đăng nhập -->
+    <servlet>
+        <servlet-name>LoginController</servlet-name>
+        <servlet-class>controller.iam.LoginController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginController</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <!-- Định nghĩa Servlet cho trang chính (Home) -->
+    <servlet>
+        <servlet-name>HomeController</servlet-name>
+        <servlet-class>controller.home.HomeController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HomeController</servlet-name>
+        <url-pattern>/home</url-pattern>
+    </servlet-mapping>
+
+    <!-- Định nghĩa Servlet cho việc tạo đơn nghỉ phép -->
+    <servlet>
+        <servlet-name>CreateController</servlet-name>
+        <servlet-class>controller.request.CreateController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateController</servlet-name>
+        <url-pattern>/request/create</url-pattern>
+    </servlet-mapping>
+
+    <!-- Định nghĩa Servlet cho danh sách đơn nghỉ phép -->
+    <servlet>
+        <servlet-name>ListController</servlet-name>
+        <servlet-class>controller.request.ListController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ListController</servlet-name>
+        <url-pattern>/request/list</url-pattern>
+    </servlet-mapping>
+
+    <!-- Định nghĩa Servlet cho việc duyệt đơn nghỉ phép -->
+    <servlet>
+        <servlet-name>ReviewController</servlet-name>
+        <servlet-class>controller.request.ReviewController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReviewController</servlet-name>
+        <url-pattern>/request/review</url-pattern>
+    </servlet-mapping>
+
+    <!-- Định nghĩa trang mặc định (chào mừng hoặc trang chính) -->
+    <welcome-file-list>
+        <welcome-file>login.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>

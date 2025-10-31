@@ -19,9 +19,9 @@
     </div>
 
     <div class="container">
-        <h1>Chào mừng, <%= u.getDisplayname() %>!</h1>
-        <p>Tài khoản của bạn: <%= u.getUsername() %></p>
-        <p>Thông tin nhân viên: <%= u.getEmployee() != null ? u.getEmployee().getEname() : "Chưa có thông tin" %></p>
+    <h1>Chào mừng, <%= u.getFullName() %>!</h1>
+    <p>Tài khoản của bạn: <%= u.getUsername() %></p>
+    <p>Phòng ban: <%= u.getDepartment() != null ? u.getDepartment().getName() : "Chưa có thông tin" %></p>
 
         <div class="product-list">
             <div class="card">

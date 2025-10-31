@@ -1,29 +1,71 @@
 package model.iam;
 
-import model.Employee;  // Đảm bảo rằng Employee được import đúng
-
 public class User {
-    private int uid;
+    private int id;
     private String username;
-    private String displayname;
-    private Employee employee;  // Thêm thuộc tính Employee
+    private String fullName;
+    private Role role;
+    private Department department;
+    private boolean isActive;
+    private User manager;
 
-    // Getter và Setter cho uid, username, displayname
-    public int getUid() { return uid; }
-    public void setUid(int uid) { this.uid = uid; }
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getDisplayname() { return displayname; }
-    public void setDisplayname(String displayname) { this.displayname = displayname; }
-
-    // Thêm Getter và Setter cho Employee
-    public Employee getEmployee() {
-        return employee;
+    public int getId() {
+        return id;
     }
 
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public User getManager() {
+        return manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
+    }
+
+    public int getUid() {
+        return this.id;
     }
 }

@@ -1,19 +1,21 @@
 package dal;
 
-import model.iam.User;
-import model.Employee;
 import java.sql.*;
+import model.iam.Department;
+import model.iam.Role;
+import model.iam.User;
 
 public class UserDBContext extends DBContext {
 
     public User get(String username, String password) {
         String sql = """
-            SELECT TOP 1 u.uid, u.username, u.displayname, 
-                   e.eid, e.ename, e.did 
-            FROM [User] u 
-            LEFT JOIN Enrollment en ON en.uid = u.uid AND en.active = 1
-            LEFT JOIN Employee e ON e.eid = en.eid 
-            WHERE u.username = ? AND u.password = ?
+            SELECT TOP 1 u.id, u.username, u.full_name, u.role_id, u.department_id,
+                   r.code as role_code, r.name as role_name,
+                   d.name as department_name
+            FROM Users u 
+            JOIN Roles r ON r.id = u.role_id
+            JOIN Departments d ON d.id = u.department_id
+            WHERE u.username = ? AND u.password_hash = ? AND u.is_active = 1
         """;
         try (PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setString(1, username.trim());
@@ -21,19 +23,23 @@ public class UserDBContext extends DBContext {
             ResultSet rs = stm.executeQuery();
             if (rs.next()) {
                 User u = new User();
-                u.setUid(rs.getInt("uid"));
+                u.setId(rs.getInt("id"));
                 u.setUsername(rs.getString("username"));
-                u.setDisplayname(rs.getString("displayname"));
-
-                int eid = rs.getInt("eid");
-                if (!rs.wasNull()) {
-                    Employee e = new Employee();
-                    e.setEid(eid);
-                    e.setEname(rs.getString("ename"));
-                    e.setDid(rs.getInt("did"));
-                    u.setEmployee(e);  // Gán Employee vào User
-                }
-
+                u.setFullName(rs.getString("full_name"));
+                
+                Role role = new Role();
+                role.setId(rs.getInt("role_id"));
+                role.setCode(rs.getString("role_code"));
+                role.setName(rs.getString("role_name"));
+                u.setRole(role);
+                
+                Department dept = new Department();
+                dept.setId(rs.getInt("department_id"));
+                dept.setName(rs.getString("department_name"));
+                u.setDepartment(dept);
+                
+                u.setActive(true); // Since we filter is_active=1 in SQL
+                
                 return u;
             }
             return null;

@@ -88,13 +88,14 @@ public class RequestForLeaveDBContext extends DBContext {
     }
 
     public List<RequestForLeave> listMine(int myEid) {
+        // Updated to use new schema: Requests and Users
         String sql = """
-            SELECT r.*, e.ename as created_by_name, p.ename as processed_by_name
-            FROM RequestForLeave r
-            JOIN Employee e ON e.eid = r.created_by
-            LEFT JOIN Employee p ON p.eid = r.processed_by
-            WHERE r.created_by = ?
-            ORDER BY r.created_time DESC
+            SELECT r.*, u.full_name as created_by_name, p.full_name as processed_by_name
+            FROM Requests r
+            JOIN Users u ON u.id = r.created_by
+            LEFT JOIN Users p ON p.id = r.processed_by
+            WHERE r.employee_id = ?
+            ORDER BY r.created_at DESC
         """;
         
         List<RequestForLeave> requests = new ArrayList<>();
@@ -123,30 +124,22 @@ public class RequestForLeaveDBContext extends DBContext {
     }
 
     public int getMyEid(int uid) {
-        String sql = "SELECT eid FROM v_UserCurrentEnrollment WHERE uid = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, uid);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("eid");
-            }
-            throw new RuntimeException("No active enrollment found for user");
-        } catch (SQLException ex) {
-            throw new RuntimeException("Error getting employee ID", ex);
-        }
+        // In the updated schema we use Users.id as the employee identifier.
+        // Controllers already pass the authenticated user's id (uid),
+        // so the employee id is the same as uid. Return uid directly to
+        // remain compatible with existing controller logic.
+        return uid;
     }
 
     public List<RequestForLeave> listOfSubordinates(int myEid) {
+        // Find requests created by direct subordinates (manager_id relationship)
         String sql = """
-            WITH SubRequests AS (
-                SELECT r.*, e.ename as created_by_name, p.ename as processed_by_name
-                FROM RequestForLeave r
-                JOIN Employee e ON e.eid = r.created_by
-                LEFT JOIN Employee p ON p.eid = r.processed_by
-                WHERE r.created_by IN (SELECT eid FROM dbo.fn_Subordinates(?))
-                ORDER BY r.created_time DESC
-            )
-            SELECT * FROM SubRequests
+            SELECT r.*, u.full_name as created_by_name, p.full_name as processed_by_name
+            FROM Requests r
+            JOIN Users u ON u.id = r.created_by
+            LEFT JOIN Users p ON p.id = r.processed_by
+            WHERE r.created_by IN (SELECT id FROM Users WHERE manager_id = ?)
+            ORDER BY r.created_at DESC
         """;
         
         List<RequestForLeave> requests = new ArrayList<>();

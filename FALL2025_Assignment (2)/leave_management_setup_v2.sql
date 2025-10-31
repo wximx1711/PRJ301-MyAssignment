@@ -1,367 +1,210 @@
 /* ================================================================
-   PRJ301_Assignment Mink — Leave Management (SQL Server)
-   CLEAN, RERUNNABLE, PRODUCTION-LIKE SETUP (v2)
-   Fixes:
-   - Feature.url -> VARCHAR(255) (allow UNIQUE index)
+   PRJ301_Assignment Mink — Leave Management 
    ================================================================= */
 
-IF DB_ID(N'FALL25_Assignment') IS NULL
+-- 0) Tạo mới DB an toàn
+IF DB_ID('P42_AsignmentW10') IS NOT NULL
 BEGIN
-  DECLARE @sql nvarchar(max) = N'CREATE DATABASE FALL25_Assignment';
-  EXEC(@sql);
-END
+    ALTER DATABASE FALL25_Assignment SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE FALL25_Assignment;
+END;
+GO
+CREATE DATABASE FALL25_Assignment;
+GO
+USE FALL25_Assignment;
 GO
 
-USE [FALL25_Assignment];
-GO
-
-SET NOCOUNT ON;
-SET XACT_ABORT ON;
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-/* ========================== DROP PHASE ========================== */
-BEGIN TRY
-  BEGIN TRAN;
-
-  IF OBJECT_ID('dbo.v_UserFeatures', 'V')    IS NOT NULL DROP VIEW dbo.v_UserFeatures;
-  IF OBJECT_ID('dbo.v_UserCurrentEnrollment','V') IS NOT NULL DROP VIEW dbo.v_UserCurrentEnrollment;
-  IF OBJECT_ID('dbo.fn_Subordinates', 'IF')  IS NOT NULL DROP FUNCTION dbo.fn_Subordinates;
-  IF OBJECT_ID('dbo.sp_Request_Create', 'P') IS NOT NULL DROP PROCEDURE dbo.sp_Request_Create;
-  IF OBJECT_ID('dbo.sp_Request_ApproveReject', 'P') IS NOT NULL DROP PROCEDURE dbo.sp_Request_ApproveReject;
-
-  IF OBJECT_ID('dbo.RequestForLeave', 'U') IS NOT NULL DROP TABLE dbo.RequestForLeave;
-  IF OBJECT_ID('dbo.RoleFeature', 'U')    IS NOT NULL DROP TABLE dbo.RoleFeature;
-  IF OBJECT_ID('dbo.UserRole', 'U')       IS NOT NULL DROP TABLE dbo.UserRole;
-  IF OBJECT_ID('dbo.Enrollment', 'U')     IS NOT NULL DROP TABLE dbo.Enrollment;
-  IF OBJECT_ID('dbo.Feature', 'U')        IS NOT NULL DROP TABLE dbo.Feature;
-  IF OBJECT_ID('dbo.Role', 'U')           IS NOT NULL DROP TABLE dbo.Role;
-  IF OBJECT_ID('dbo.Employee', 'U')       IS NOT NULL DROP TABLE dbo.Employee;
-  IF OBJECT_ID('dbo.[User]', 'U')         IS NOT NULL DROP TABLE dbo.[User];
-  IF OBJECT_ID('dbo.Division', 'U')       IS NOT NULL DROP TABLE dbo.Division;
-
-  COMMIT;
-END TRY
-BEGIN CATCH
-  IF @@TRANCOUNT > 0 ROLLBACK;
-  THROW;
-END CATCH
-GO
-
-/* ========================= CREATE PHASE ========================= */
-BEGIN TRY
-  BEGIN TRAN;
-
-  CREATE TABLE dbo.[User](
-    uid          INT          NOT NULL,
-    username     VARCHAR(150) NOT NULL,
-    [password]   VARCHAR(150) NOT NULL,
-    displayname  VARCHAR(150) NOT NULL,
-    CONSTRAINT PK_User PRIMARY KEY CLUSTERED(uid),
-    CONSTRAINT UQ_User_Username UNIQUE(username)
-  );
-
-  CREATE TABLE dbo.Division(
-    did   INT          NOT NULL,
-    dname VARCHAR(150) NOT NULL,
-    CONSTRAINT PK_Division PRIMARY KEY CLUSTERED(did)
-  );
-
-  CREATE TABLE dbo.Role(
-    rid   INT          NOT NULL,
-    rname VARCHAR(150) NOT NULL,
-    CONSTRAINT PK_Role PRIMARY KEY CLUSTERED(rid)
-  );
-
-  -- CHANGED: url VARCHAR(255) to allow unique index
-  CREATE TABLE dbo.Feature(
-    fid  INT NOT NULL,
-    [url] VARCHAR(255) NOT NULL,
-    CONSTRAINT PK_Feature PRIMARY KEY CLUSTERED(fid),
-    CONSTRAINT UQ_Feature_Url UNIQUE([url])
-  );
-
-  CREATE TABLE dbo.Employee(
-    eid           INT          NOT NULL,
-    ename         VARCHAR(150) NOT NULL,
-    did           INT          NOT NULL,
-    supervisorid  INT          NULL,
-    CONSTRAINT PK_Employee PRIMARY KEY CLUSTERED(eid),
-    CONSTRAINT FK_Employee_Division FOREIGN KEY(did) REFERENCES dbo.Division(did),
-    CONSTRAINT FK_Employee_Employee FOREIGN KEY(supervisorid) REFERENCES dbo.Employee(eid),
-    CONSTRAINT CK_Employee_NotSelfSupervisor CHECK (supervisorid IS NULL OR supervisorid <> eid)
-  );
-
-  CREATE TABLE dbo.Enrollment(
-    uid     INT NOT NULL,
-    eid     INT NOT NULL,
-    [active] BIT NOT NULL CONSTRAINT DF_Enrollment_Active DEFAULT (1),
-    CONSTRAINT PK_Enrollment PRIMARY KEY CLUSTERED(uid, eid),
-    CONSTRAINT FK_Enrollment_User     FOREIGN KEY(uid) REFERENCES dbo.[User](uid),
-    CONSTRAINT FK_Enrollment_Employee FOREIGN KEY(eid) REFERENCES dbo.Employee(eid)
-  );
-
-  CREATE TABLE dbo.UserRole(
-    uid INT NOT NULL,
-    rid INT NOT NULL,
-    CONSTRAINT PK_UserRole PRIMARY KEY CLUSTERED(uid, rid),
-    CONSTRAINT FK_UserRole_User FOREIGN KEY(uid) REFERENCES dbo.[User](uid),
-    CONSTRAINT FK_UserRole_Role FOREIGN KEY(rid) REFERENCES dbo.Role(rid)
-  );
-
-  CREATE TABLE dbo.RoleFeature(
-    rid INT NOT NULL,
-    fid INT NOT NULL,
-    CONSTRAINT PK_RoleFeature PRIMARY KEY CLUSTERED(rid, fid),
-    CONSTRAINT FK_RoleFeature_Role    FOREIGN KEY(rid) REFERENCES dbo.Role(rid),
-    CONSTRAINT FK_RoleFeature_Feature FOREIGN KEY(fid) REFERENCES dbo.Feature(fid)
-  );
-
-  CREATE TABLE dbo.RequestForLeave(
-    rid           INT IDENTITY(1,1) NOT NULL,
-    created_by    INT       NOT NULL,
-    created_time  DATETIME  NOT NULL CONSTRAINT DF_RFL_CreatedTime DEFAULT (GETDATE()),
-    from_date     DATE      NOT NULL,
-    to_date       DATE      NOT NULL,
-    reason        VARCHAR(MAX) NOT NULL,
-    status        INT       NOT NULL,
-    processed_by  INT       NULL,
-    CONSTRAINT PK_RequestForLeave PRIMARY KEY CLUSTERED(rid),
-    CONSTRAINT FK_RFL_CreatedBy_Employee   FOREIGN KEY(created_by)  REFERENCES dbo.Employee(eid),
-    CONSTRAINT FK_RFL_ProcessedBy_Employee FOREIGN KEY(processed_by) REFERENCES dbo.Employee(eid),
-    CONSTRAINT CK_RFL_Status CHECK (status IN (0,1,2)),
-    CONSTRAINT CK_RFL_DateOrder CHECK (from_date <= to_date)
-  );
-
-  /* Seed data */
-  INSERT dbo.Division(did, dname) VALUES (1,'IT'),(2,'QA'),(3,'Sale');
-
-  INSERT dbo.Employee(eid, ename, did, supervisorid) VALUES
-  (1, 'Nguyen Van A', 1, NULL),
-  (2, 'Tran Van B',   1, 1),
-  (3, 'CCCCCC',       1, 1),
-  (4, 'Mr DDDD',      1, 2),
-  (5, 'Mr EEEE',      1, 3),
-  (6, 'Mr GGGGG',     1, 2);
-
-  INSERT dbo.[User](uid, username, [password], displayname) VALUES
-  (1,'mra','123','Mr A - Division Leader'),
-  (2,'mrb','123','Mr B - Manager'),
-  (3,'mrc','123','Mr C - Manager'),
-  (4,'mrd','123','Employee MrD'),
-  (5,'mre','123','Employee MrE'),
-  (6,'mrg','123','Unassigned Role');
-
-  INSERT dbo.Enrollment(uid,eid,[active]) VALUES
-  (1,1,1),(2,2,1),(3,3,1),(4,4,1),(5,5,1),(6,6,1);
-
-  INSERT dbo.Role(rid, rname) VALUES (1,'IT Head'),(2,'IT PM'),(3,'IT Employee');
-
-  INSERT dbo.Feature(fid, [url]) VALUES
-  (1,'/request/create'),
-  (2,'/request/review'),
-  (3,'/request/list'),
-  (4,'/division/agenda');
-
-  INSERT dbo.RoleFeature(rid,fid) VALUES
-  (1,1),(1,2),(1,3),(1,4),
-  (2,1),(2,2),(2,3),
-  (3,1),(3,3);
-
-  INSERT dbo.UserRole(uid,rid) VALUES (1,1),(2,2),(3,2),(4,3),(5,3);
-
-  SET IDENTITY_INSERT dbo.RequestForLeave ON;
-  INSERT dbo.RequestForLeave(rid, created_by, created_time, from_date, to_date, reason, status, processed_by) VALUES
-  (1 ,1, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'Nghi lay vo', 0, NULL),
-  (2 ,2, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'asfasf',      0, NULL),
-  (3 ,2, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'reeeeee',     0, NULL),
-  (4 ,3, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'ssssss',      0, NULL),
-  (5 ,3, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'ffff',        0, NULL),
-  (6 ,4, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'aasss',       0, NULL),
-  (7 ,4, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'asfasfasf',   0, NULL),
-  (8 ,4, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'asfasfasfasfasfasf', 0, NULL),
-  (9 ,5, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'asfafasfaf',  0, NULL),
-  (10,5, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'asfafafasfasfasfasfasf', 0, NULL),
-  (11,5, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'aaaa',        1, 1),
-  (12,5, '2025-10-21T00:00:00', '2025-10-22','2025-10-24', 'aaaaaaaaaaaa',2, 1);
-  SET IDENTITY_INSERT dbo.RequestForLeave OFF;
-
-  COMMIT;
-END TRY
-BEGIN CATCH
-  IF @@TRANCOUNT > 0 ROLLBACK;
-  THROW;
-END CATCH
-GO
-
-/* ========================== INDEX PHASE ========================== */
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_RFL_CreatedBy' AND object_id = OBJECT_ID('dbo.RequestForLeave'))
-  CREATE INDEX IX_RFL_CreatedBy
-  ON dbo.RequestForLeave(created_by, status)
-  INCLUDE (created_time, processed_by, from_date, to_date);
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_RFL_DateRange' AND object_id = OBJECT_ID('dbo.RequestForLeave'))
-  CREATE INDEX IX_RFL_DateRange
-  ON dbo.RequestForLeave(from_date, to_date);
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Employee_Supervisor' AND object_id = OBJECT_ID('dbo.Employee'))
-  CREATE INDEX IX_Employee_Supervisor ON dbo.Employee(supervisorid);
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_UserRole' AND object_id = OBJECT_ID('dbo.UserRole'))
-  CREATE INDEX IX_UserRole ON dbo.UserRole(uid, rid);
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_RoleFeature' AND object_id = OBJECT_ID('dbo.RoleFeature'))
-  CREATE INDEX IX_RoleFeature ON dbo.RoleFeature(rid, fid);
-GO
-
-/* =========================== VIEWS ============================== */
-CREATE OR ALTER VIEW dbo.v_UserFeatures AS
-SELECT u.uid, u.username, f.fid, f.[url]
-FROM dbo.[User] u
-JOIN dbo.UserRole    ur ON ur.uid = u.uid
-JOIN dbo.RoleFeature rf ON rf.rid = ur.rid
-JOIN dbo.Feature     f  ON f.fid = rf.fid;
-GO
-
-CREATE OR ALTER VIEW dbo.v_UserCurrentEnrollment AS
-SELECT u.uid, u.username, e.eid, e.ename, e.did
-FROM dbo.[User] u
-JOIN dbo.Enrollment en ON en.uid = u.uid AND en.active = 1
-JOIN dbo.Employee e    ON e.eid = en.eid;
-GO
-
-/* ====================== FUNCTION (ĐỆ QUY) ======================= */
-CREATE OR ALTER FUNCTION dbo.fn_Subordinates(@eid INT)
-RETURNS TABLE
-AS
-RETURN
-(
-  WITH SubTree AS (
-    SELECT e.eid, e.supervisorid
-    FROM dbo.Employee e
-    WHERE e.eid = @eid
-    UNION ALL
-    SELECT c.eid, c.supervisorid
-    FROM dbo.Employee c
-    JOIN SubTree p ON c.supervisorid = p.eid
-  )
-  SELECT eid
-  FROM SubTree
-  WHERE eid <> @eid
+/* ========== 1) Lookup: Departments, Roles, LeaveTypes ========== */
+CREATE TABLE dbo.Departments (
+    id           INT IDENTITY(1,1) PRIMARY KEY,
+    name         NVARCHAR(100) NOT NULL UNIQUE
 );
-GO
 
-/* ========================== PROCEDURES ========================== */
-CREATE OR ALTER PROCEDURE dbo.sp_Request_Create
-  @creator_uid   INT,
-  @from_date     DATE,
-  @to_date       DATE,
-  @reason        VARCHAR(MAX)
+CREATE TABLE dbo.Roles (
+    id           INT IDENTITY(1,1) PRIMARY KEY,
+    code         NVARCHAR(30)  NOT NULL UNIQUE,   -- EMPLOYEE / MANAGER / LEADER
+    name         NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE dbo.LeaveTypes (
+    id                 INT IDENTITY(1,1) PRIMARY KEY,
+    code               NVARCHAR(30)  NOT NULL UNIQUE,  -- ANNUAL / SICK / MARRIAGE / ...
+    name               NVARCHAR(100) NOT NULL,
+    requires_document  BIT NOT NULL DEFAULT (0)
+);
+
+/* ========== 2) Users (chuẩn hoá, có manager_id) ========== */
+CREATE TABLE dbo.Users (
+    id            INT IDENTITY(1,1) PRIMARY KEY,
+    username      NVARCHAR(50)  NOT NULL UNIQUE,
+    password_hash NVARCHAR(255) NOT NULL,          -- (Gợi ý: lưu hash, không lưu plain)
+    full_name     NVARCHAR(120) NOT NULL,
+    role_id       INT NOT NULL FOREIGN KEY REFERENCES dbo.Roles(id),
+    department_id INT NOT NULL FOREIGN KEY REFERENCES dbo.Departments(id),
+    manager_id    INT NULL     FOREIGN KEY REFERENCES dbo.Users(id),
+    is_active     BIT NOT NULL DEFAULT (1),
+    created_at    DATETIME2(0) NOT NULL DEFAULT (SYSUTCDATETIME())
+);
+CREATE INDEX IX_Users_Manager ON dbo.Users(manager_id);
+
+/* ========== 3) Requests + History + Attachments ========== */
+CREATE TABLE dbo.Requests (
+    id             INT IDENTITY(1,1) PRIMARY KEY,
+    employee_id    INT NOT NULL FOREIGN KEY REFERENCES dbo.Users(id),
+    type_id        INT NOT NULL FOREIGN KEY REFERENCES dbo.LeaveTypes(id),
+    title          NVARCHAR(100) NOT NULL,
+    reason         NVARCHAR(255) NOT NULL,
+    start_date     DATE NOT NULL,
+    end_date       DATE NOT NULL,
+    status         NVARCHAR(20) NOT NULL 
+        CONSTRAINT CK_Requests_Status CHECK (status IN (N'INPROGRESS', N'APPROVED', N'REJECTED')),
+    manager_note   NVARCHAR(255) NULL,
+    created_at     DATETIME2(0) NOT NULL DEFAULT (SYSUTCDATETIME()),
+    created_by     INT NOT NULL FOREIGN KEY REFERENCES dbo.Users(id),
+    processed_at   DATETIME2(0) NULL,
+    processed_by   INT NULL FOREIGN KEY REFERENCES dbo.Users(id),
+    duration_days  AS (DATEDIFF(DAY, start_date, end_date) + 1) PERSISTED
+);
+
+-- Ràng buộc ngày hợp lệ
+ALTER TABLE dbo.Requests ADD CONSTRAINT CK_Requests_DateRange
+CHECK (start_date <= end_date);
+-- Chỉ mục phục vụ màn hình list/agenda/duyệt
+CREATE INDEX IX_Requests_EmployeeStatus ON dbo.Requests(employee_id, status);
+CREATE INDEX IX_Requests_DateRange     ON dbo.Requests(start_date, end_date);
+CREATE INDEX IX_Requests_ProcessedBy   ON dbo.Requests(processed_by);
+
+-- Lịch sử chuyển trạng thái / ghi chú duyệt
+CREATE TABLE dbo.RequestHistory (
+    id           INT IDENTITY(1,1) PRIMARY KEY,
+    request_id   INT NOT NULL FOREIGN KEY REFERENCES dbo.Requests(id),
+    old_status   NVARCHAR(20) NULL,
+    new_status   NVARCHAR(20) NOT NULL,
+    changed_by   INT NOT NULL FOREIGN KEY REFERENCES dbo.Users(id),
+    changed_at   DATETIME2(0) NOT NULL DEFAULT (SYSUTCDATETIME()),
+    note         NVARCHAR(255) NULL
+);
+CREATE INDEX IX_History_Request ON dbo.RequestHistory(request_id);
+
+-- Đính kèm minh chứng
+CREATE TABLE dbo.Attachments (
+    id           INT IDENTITY(1,1) PRIMARY KEY,
+    request_id   INT NOT NULL FOREIGN KEY REFERENCES dbo.Requests(id),
+    file_name    NVARCHAR(255) NOT NULL,
+    file_path    NVARCHAR(500) NOT NULL,  -- đường dẫn lưu file
+    uploaded_by  INT NOT NULL FOREIGN KEY REFERENCES dbo.Users(id),
+    uploaded_at  DATETIME2(0) NOT NULL DEFAULT (SYSUTCDATETIME())
+);
+CREATE INDEX IX_Attachments_Request ON dbo.Attachments(request_id);
+
+/* ========== 4) Trigger: tự ghi lịch sử khi đổi trạng thái/duyệt ========== */
+GO
+CREATE OR ALTER TRIGGER dbo.tr_Requests_StatusHistory
+ON dbo.Requests
+AFTER UPDATE
 AS
 BEGIN
-  SET NOCOUNT ON;
-  SET XACT_ABORT ON;
-  BEGIN TRY
-    BEGIN TRAN;
+    SET NOCOUNT ON;
 
-    IF @from_date IS NULL OR @to_date IS NULL OR @from_date > @to_date
-    BEGIN
-      RAISERROR(N'from_date/to_date không hợp lệ', 16, 1);
-    END
-
-    DECLARE @creator_eid INT =
-    (
-      SELECT TOP 1 e.eid
-      FROM dbo.Enrollment en
-      JOIN dbo.Employee e ON e.eid = en.eid
-      WHERE en.uid = @creator_uid AND en.active = 1
-    );
-
-    IF @creator_eid IS NULL
-      RAISERROR(N'User chưa có Enrollment active', 16, 1);
-
-    IF EXISTS (
-      SELECT 1
-      FROM dbo.RequestForLeave r
-      WHERE r.created_by = @creator_eid
-        AND r.status IN (0,1)
-        AND NOT (@to_date < r.from_date OR @from_date > r.to_date)
-    )
-    BEGIN
-      RAISERROR(N'Khoảng ngày bị trùng với đơn đang chờ hoặc đã duyệt', 16, 1);
-    END
-
-    INSERT dbo.RequestForLeave(created_by, from_date, to_date, reason, status)
-    VALUES (@creator_eid, @from_date, @to_date, @reason, 0);
-
-    COMMIT;
-  END TRY
-  BEGIN CATCH
-    IF @@TRANCOUNT > 0 ROLLBACK;
-    DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE();
-    RAISERROR(@msg, 16, 1);
-  END CATCH
-END
+    -- Ghi lịch sử khi status/manager_note/processed_by/processed_at thay đổi
+    INSERT INTO dbo.RequestHistory (request_id, old_status, new_status, changed_by, note, changed_at)
+    SELECT
+        i.id,
+        d.status,
+        i.status,
+        ISNULL(i.processed_by, i.created_by),  -- nếu chưa có processed_by thì tạm ghi người tạo
+        i.manager_note,
+        SYSUTCDATETIME()
+    FROM inserted i
+    JOIN deleted  d ON d.id = i.id
+    WHERE (ISNULL(d.status,'') <> ISNULL(i.status,''))
+       OR (ISNULL(d.manager_note,'') <> ISNULL(i.manager_note,''))
+       OR (ISNULL(d.processed_by,0) <> ISNULL(i.processed_by,0))
+       OR (ISNULL(d.processed_at,'1900-01-01') <> ISNULL(i.processed_at,'1900-01-01'));
+END;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.sp_Request_ApproveReject
-  @manager_uid  INT,
-  @rid          INT,
-  @new_status   INT,
-  @note         VARCHAR(MAX) = NULL
+/* ========== 5) (Tuỳ chọn) View phục vụ Agenda: mỗi ngày 1 dòng ========== */
+CREATE OR ALTER VIEW dbo.vw_Agenda
 AS
-BEGIN
-  SET NOCOUNT ON;
-  SET XACT_ABORT ON;
-
-  IF @new_status NOT IN (1,2)
-  BEGIN
-    RAISERROR(N'new_status chỉ nhận 1=Approve hoặc 2=Reject', 16, 1);
-    RETURN;
-  END
-
-  BEGIN TRY
-    BEGIN TRAN;
-
-    DECLARE @manager_eid INT =
-    (
-      SELECT TOP 1 e.eid
-      FROM dbo.Enrollment en
-      JOIN dbo.Employee e ON e.eid = en.eid
-      WHERE en.uid = @manager_uid AND en.active = 1
-    );
-
-    IF @manager_eid IS NULL
-      RAISERROR(N'User quản lý chưa có Enrollment active', 16, 1);
-
-    IF NOT EXISTS (
-      SELECT 1
-      FROM dbo.RequestForLeave r
-      JOIN dbo.Employee emp ON emp.eid = r.created_by
-      WHERE r.rid = @rid
-        AND r.status = 0
-        AND emp.supervisorid = @manager_eid
-    )
-    BEGIN
-      RAISERROR(N'Không có quyền duyệt đơn này hoặc đơn không ở trạng thái Inprogress', 16, 1);
-    END
-
-    UPDATE r
-      SET r.status = @new_status,
-          r.processed_by = @manager_eid
-    FROM dbo.RequestForLeave r
-    WHERE r.rid = @rid AND r.status = 0;
-
-    COMMIT;
-  END TRY
-  BEGIN CATCH
-    IF @@TRANCOUNT > 0 ROLLBACK;
-    DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE();
-    RAISERROR(@msg, 16, 1);
-  END CATCH
-END
+SELECT 
+    u.id            AS user_id,
+    u.full_name,
+    d.name          AS department,
+    r.id            AS request_id,
+    r.status,
+    dt.work_date
+FROM dbo.Users u
+JOIN dbo.Departments d ON d.id = u.department_id
+JOIN dbo.Requests   r ON r.employee_id = u.id AND r.status = N'APPROVED'
+CROSS APPLY (
+    SELECT DATEADD(DAY, v.number, r.start_date) AS work_date
+    FROM master..spt_values v
+    WHERE v.type = 'P'
+      AND DATEADD(DAY, v.number, r.start_date) <= r.end_date
+) dt;
 GO
 
+/* ========== 6) SEED dữ liệu (map theo seed bạn đưa) ========== */
+-- Departments
+INSERT INTO dbo.Departments(name) VALUES (N'IT'), (N'QA');
 
-PRINT '✅ Setup v2 completed successfully.'; 
+-- Roles
+INSERT INTO dbo.Roles(code, name) VALUES
+(N'EMPLOYEE', N'Nhân viên'),
+(N'MANAGER',  N'Quản lý'),
+(N'LEADER',   N'Trưởng nhóm');
+
+-- LeaveTypes
+INSERT INTO dbo.LeaveTypes(code, name, requires_document) VALUES
+(N'ANNUAL',   N'Phép năm', 0),
+(N'SICK',     N'Nghỉ ốm',  1),
+(N'MARRIAGE', N'Nghỉ cưới',1);
+
+-- Users (dùng '123' tạm; khuyến nghị thay bằng hash)
+DECLARE @IT INT = (SELECT id FROM dbo.Departments WHERE name=N'IT');
+DECLARE @QA INT = (SELECT id FROM dbo.Departments WHERE name=N'QA');
+
+DECLARE @EMP INT = (SELECT id FROM dbo.Roles WHERE code=N'EMPLOYEE');
+DECLARE @MAN INT = (SELECT id FROM dbo.Roles WHERE code=N'MANAGER');
+DECLARE @LEA INT = (SELECT id FROM dbo.Roles WHERE code=N'LEADER');
+
+-- Tạo trước manager để gán manager_id
+INSERT INTO dbo.Users(username,password_hash,full_name,role_id,department_id,manager_id)
+VALUES
+(N'bob',  N'123', N'Bob Tran',  @MAN, @IT, NULL),  -- Manager IT
+(N'mike', N'123', N'Mike Le',   @MAN, @QA, NULL);  -- Manager QA
+
+-- Lấy id của 2 manager
+DECLARE @bob  INT = (SELECT id FROM dbo.Users WHERE username=N'bob');
+DECLARE @mike INT = (SELECT id FROM dbo.Users WHERE username=N'mike');
+
+-- Nhân viên/Leader báo cáo lên manager
+INSERT INTO dbo.Users(username,password_hash,full_name,role_id,department_id,manager_id)
+VALUES
+(N'alice', N'123', N'Alice Nguyen', @EMP, @IT,  @bob),
+(N'carl',  N'123', N'Carl Pham',    @LEA, @IT,  @bob),
+(N'eva',   N'123', N'Eva Do',       @EMP, @QA,  @mike);
+
+-- Một vài Requests mẫu
+DECLARE @ANNUAL INT = (SELECT id FROM dbo.LeaveTypes WHERE code=N'ANNUAL');
+DECLARE @SICK   INT = (SELECT id FROM dbo.LeaveTypes WHERE code=N'SICK');
+
+DECLARE @alice INT = (SELECT id FROM dbo.Users WHERE username=N'alice');
+DECLARE @carl  INT = (SELECT id FROM dbo.Users WHERE username=N'carl');
+DECLARE @eva   INT = (SELECT id FROM dbo.Users WHERE username=N'eva');
+
+-- INPROGRESS (chưa duyệt)
+INSERT INTO dbo.Requests (
+    employee_id, type_id, title, reason, start_date, end_date, status, created_by
+) VALUES
+(@alice, @ANNUAL, N'Nghỉ phép năm', N'Về quê',    '2025-10-20', '2025-10-22', N'INPROGRESS', @alice);
+
+-- APPROVED (đã duyệt)
+INSERT INTO dbo.Requests (
+    employee_id, type_id, title, reason, start_date, end_date, status, manager_note, created_by, processed_by, processed_at
+) VALUES
+(@carl,  @SICK,   N'Nghỉ ốm',      N'Cảm cúm',    '2025-10-15', '2025-10-16', N'APPROVED',  N'Chúc mau khoẻ', @carl,  @bob,  SYSUTCDATETIME()),
+(@eva,   @ANNUAL, N'Nghỉ phép năm', N'Việc gia đình','2025-10-25','2025-10-27',N'APPROVED', N'OK',            @eva,   @mike, SYSUTCDATETIME());
+
+GO

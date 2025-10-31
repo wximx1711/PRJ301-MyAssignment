@@ -1,64 +1,76 @@
 package controller.division;
 
 import controller.iam.BaseRequiredAuthorizationController;
-import dal.DBContext;
+import dal.RequestForLeaveDBContext;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 @WebServlet("/division/agenda")
 public class ViewAgendaController extends BaseRequiredAuthorizationController {
+
     protected String featureUrl(HttpServletRequest req) { return "/division/agenda"; }
 
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/view/division/agenda.jsp").forward(req, resp);
+        try {
+            // Validate and parse input parameters
+            String fromStr = req.getParameter("from");
+            String toStr = req.getParameter("to");
+            String didStr = req.getParameter("did");
+
+            if (fromStr == null || toStr == null || didStr == null) {
+                throw new IllegalArgumentException("Missing required parameters: from, to, and did are required");
+            }
+
+            Date from, to;
+            int did;
+            try {
+                from = Date.valueOf(fromStr);
+                to = Date.valueOf(toStr);
+                did = Integer.parseInt(didStr);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid date format or department ID");
+            }
+
+            // Validate date range
+            if (from.after(to)) {
+                throw new IllegalArgumentException("Start date must be before or equal to end date");
+            }
+
+            // Fetch data from DB
+            RequestForLeaveDBContext db = new RequestForLeaveDBContext();
+            List<Map<String, Object>> rows = db.getAgenda(did, from, to);
+
+            // Pass data to JSP
+            req.setAttribute("rows", rows);
+            req.getRequestDispatcher("/view/division/agenda.jsp").forward(req, resp);
+            
+        } catch (IllegalArgumentException e) {
+            req.setAttribute("error", e.getMessage());
+            req.getRequestDispatcher("/view/auth/message.jsp").forward(req, resp);
+        } catch (RuntimeException e) {
+            req.setAttribute("error", "System error: " + e.getMessage());
+            req.getRequestDispatcher("/view/auth/message.jsp").forward(req, resp);
+        }
     }
 
     @Override
     protected void processPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        java.sql.Date from = java.sql.Date.valueOf(req.getParameter("from"));
-        java.sql.Date to   = java.sql.Date.valueOf(req.getParameter("to"));
-        int did            = Integer.parseInt(req.getParameter("did"));
+        // Lấy tham số từ form
+        Date from = Date.valueOf(req.getParameter("from"));
+        Date to = Date.valueOf(req.getParameter("to"));
+        int did = Integer.parseInt(req.getParameter("did"));
 
-        final String sql = """
-            WITH Dates AS (
-              SELECT ? AS d
-              UNION ALL SELECT DATEADD(DAY,1,d) FROM Dates WHERE d < ?
-            ),
-            Emp AS ( SELECT eid, ename FROM Employee WHERE did=? ),
-            EmpDate AS ( SELECT e.eid, e.ename, d.d FROM Emp e CROSS JOIN Dates d ),
-            Marked AS (
-              SELECT ed.eid, ed.ename, ed.d,
-                     CASE WHEN EXISTS (
-                       SELECT 1 FROM RequestForLeave r
-                       WHERE r.created_by = ed.eid AND r.status=1
-                         AND ed.d BETWEEN r.from_date AND r.to_date
-                     ) THEN 1 ELSE 0 END AS isLeave
-              FROM EmpDate ed
-            )
-            SELECT eid, ename, d, isLeave FROM Marked OPTION (MAXRECURSION 32767);
-        """;
+        // Gọi phương thức để lấy dữ liệu từ DB
+        RequestForLeaveDBContext db = new RequestForLeaveDBContext();
+        List<Map<String, Object>> rows = db.getAgenda(did, from, to);
 
-        try (DBContext db = new DBContext();
-             PreparedStatement ps = db.getConnection().prepareStatement(sql)) {
-            ps.setDate(1, from); ps.setDate(2, to); ps.setInt(3, did);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<Map<String,Object>> rows = new ArrayList<>();
-                while (rs.next()) {
-                    Map<String,Object> m = new HashMap<>();
-                    m.put("eid", rs.getInt("eid"));
-                    m.put("ename", rs.getString("ename"));
-                    m.put("day", rs.getDate("d"));
-                    m.put("isLeave", rs.getInt("isLeave"));
-                    rows.add(m);
-                }
-                req.setAttribute("rows", rows);
-            }
-            req.getRequestDispatcher("/view/division/agenda.jsp").forward(req, resp);
-        } catch (SQLException e) { throw new ServletException("Load agenda failed: " + e.getMessage(), e); }
+        // Truyền dữ liệu sang trang JSP
+        req.setAttribute("rows", rows);
+        req.getRequestDispatcher("/view/division/agenda.jsp").forward(req, resp);
     }
 }

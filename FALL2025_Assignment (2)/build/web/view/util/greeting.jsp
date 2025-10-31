@@ -44,6 +44,7 @@
             <ul>
                 <li><a class="link" href="<%=request.getContextPath()%>/request/create">Tạo đơn nghỉ phép</a></li>
                 <li><a class="link" href="<%=request.getContextPath()%>/request/list">Xem danh sách đơn</a></li>
+                <li><a class="link" href="<%=request.getContextPath()%>/request/review">Duyệt đơn</a></li>
             </ul>
         </div>
     </div>

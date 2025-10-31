@@ -9,14 +9,22 @@ import java.io.IOException;
 
 @WebServlet("/request/review")
 public class ReviewController extends BaseRequiredAuthorizationController {
-    @Override
     protected String featureUrl(HttpServletRequest req) {
         return "/request/review";
     }
 
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.sendRedirect(req.getContextPath() + "/request/list");
+        try {
+            var user = (model.iam.User) req.getSession().getAttribute("user");
+            RequestForLeaveDBContext db = new RequestForLeaveDBContext();
+            int myEid = db.getMyEid(user.getUid());
+            req.setAttribute("requests", db.listOfSubordinates(myEid));
+            req.getRequestDispatcher("/view/request/review.jsp").forward(req, resp);
+        } catch (RuntimeException ex) {
+            req.setAttribute("message", "Error loading requests: " + ex.getMessage());
+            req.getRequestDispatcher("/view/auth/message.jsp").forward(req, resp);
+        }
     }
 
     @Override

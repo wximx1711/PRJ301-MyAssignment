@@ -319,6 +319,24 @@ CREATE INDEX IX_UserSettings_User ON dbo.UserSettings(user_id);
 
 GO
 
+/* ========== 15) Password Reset Requests ========== */
+IF OBJECT_ID('dbo.PasswordResetRequests', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PasswordResetRequests (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        user_id INT NULL,
+        note NVARCHAR(1000) NULL,
+        status TINYINT NOT NULL DEFAULT (0), -- 0: pending, 1: processed, 2: rejected
+        processed_by INT NULL,
+        created_at DATETIME2(0) NOT NULL DEFAULT (SYSUTCDATETIME()),
+        processed_at DATETIME2(0) NULL,
+        CONSTRAINT FK_PasswordReset_User FOREIGN KEY (user_id) REFERENCES dbo.Users(id),
+        CONSTRAINT FK_PasswordReset_ProcessedBy FOREIGN KEY (processed_by) REFERENCES dbo.Users(id)
+    );
+    CREATE INDEX IX_PasswordResetRequests_User ON dbo.PasswordResetRequests(user_id);
+END
+GO
+
 /* ========== 12) Trigger: ghi lịch sử khi đổi trạng thái ========== */
 CREATE OR ALTER TRIGGER dbo.tr_Requests_StatusHistory
 ON dbo.Requests

@@ -46,8 +46,10 @@
                                     <td><c:out value="${r.toDate}"/></td>
                                     <td>
                                         <% 
-                                            java.util.Date fd = (java.util.Date) r.getFromDate();
-                                            java.util.Date td = (java.util.Date) r.getToDate();
+                                            // Retrieve the current loop item (JSTL var "r") from page context
+                                            model.RequestForLeave _r = (model.RequestForLeave) pageContext.getAttribute("r");
+                                            java.util.Date fd = _r.getFromDate();
+                                            java.util.Date td = _r.getToDate();
                                             int days = 0;
                                             if (fd != null && td != null) {
                                                 long diff = td.getTime() - fd.getTime();

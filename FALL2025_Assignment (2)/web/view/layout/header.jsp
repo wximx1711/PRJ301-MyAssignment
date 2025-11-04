@@ -34,6 +34,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/vi.min.js"></script>
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    <!-- Clipboard.js -->
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+    <!-- zxcvbn (password strength) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+    <!-- Choices.js (better select UI) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -87,6 +97,13 @@
                     </c:if>
                 </ul>
                 <ul class="navbar-nav">
+                    <c:if test="${user.role.code eq 'ADMIN'}">
+                        <li class="nav-item d-flex align-items-center me-2">
+                            <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/iam/password-requests" title="Service: Password resets">
+                                <i class="bi bi-gear"></i> Service
+                            </a>
+                        </li>
+                    </c:if>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-bell"></i>

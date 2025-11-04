@@ -425,7 +425,7 @@
                         </button>
                         
                         <div class="forgot-password">
-                            <a href="#">Quên mật khẩu?</a>
+                            <a href="<%=request.getContextPath()%>/auth/forgot">Quên mật khẩu?</a>
                         </div>
                         
                         <div class="terms">

@@ -8,6 +8,10 @@ import model.iam.User;
 public class UserDBContext extends DBContext {
 
     public User get(String username, String password) {
+        if (username == null || password == null) {
+            return null;
+        }
+        
         String sql = """
             SELECT TOP 1 u.id, u.username, u.full_name, u.role_id, u.department_id,
                    r.code as role_code, r.name as role_name,
@@ -17,9 +21,11 @@ public class UserDBContext extends DBContext {
             JOIN Departments d ON d.id = u.department_id
             WHERE u.username = ? AND u.password_hash = ? AND u.is_active = 1
         """;
-        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+        try {
+            PreparedStatement stm = connection.prepareStatement(sql);
             stm.setString(1, username.trim());
             stm.setString(2, password.trim());
+            
             ResultSet rs = stm.executeQuery();
             if (rs.next()) {
                 User u = new User();
@@ -40,11 +46,17 @@ public class UserDBContext extends DBContext {
                 
                 u.setActive(true); // Since we filter is_active=1 in SQL
                 
+                rs.close();
+                stm.close();
                 return u;
             }
+            rs.close();
+            stm.close();
             return null;
         } catch (SQLException e) {
-            throw new RuntimeException("Error retrieving user", e);
+            System.err.println("Database error in UserDBContext.get(): " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error retrieving user: " + e.getMessage(), e);
         }
     }
     

@@ -2,7 +2,8 @@
 
 /* Nền và các phần tử toàn trang */
 body {
-    font-family: 'Arial', sans-serif;
+    /* Use a font stack that supports Vietnamese characters well */
+    font-family: 'Segoe UI', 'Roboto', 'Noto Sans', 'Arial', sans-serif;
     background-color: #f4f6f9; /* Nền sáng */
     margin: 0;
     padding: 0;
@@ -16,6 +17,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /* Ensure navbar text uses the same font stack and renders Vietnamese correctly */
+    font-family: inherit;
 }
 
 .navbar a {
@@ -23,6 +26,7 @@ body {
     font-size: 16px;
     text-decoration: none;
     padding: 10px;
+    font-family: inherit;
 }
 
 .navbar a:hover {

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.RequestForLeave" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -56,29 +56,33 @@
                                     <% for (RequestForLeave r : mine) { %>
                                         <tr>
                                             <td><%= r.getRid() %></td>
-                                            <td><%= r.getTitle() != null ? r.getTitle() : "Nghỉ phép" %></td>
+                                            <td><%= r.getReason() != null ? r.getReason() : "Nghỉ phép" %></td>
                                             <td><%= r.getReason() %></td>
-                                            <td><%= r.getFrom() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getFrom()) : "" %></td>
-                                            <td><%= r.getTo() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getTo()) : "" %></td>
-                                            <td><%= r.getDuration() %> ngày</td>
+                                            <td><%= r.getFromDate() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getFromDate()) : "" %></td>
+                                            <td><%= r.getToDate() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getToDate()) : "" %></td>
                                             <td>
-                                                <% if ("INPROGRESS".equals(r.getStatus())) { %>
+                                                <%= (r.getFromDate() != null && r.getToDate() != null) ? ((int)((r.getToDate().getTime() - r.getFromDate().getTime()) / (1000*60*60*24) + 1)) : 0 %> ngày
+                                            </td>
+                                            <td>
+                                                <% if (r.getStatus() == 1) { %>
                                                     <span class="badge bg-warning">Chờ duyệt</span>
-                                                <% } else if ("APPROVED".equals(r.getStatus())) { %>
+                                                <% } else if (r.getStatus() == 2) { %>
                                                     <span class="badge bg-success">Đã duyệt</span>
-                                                <% } else if ("REJECTED".equals(r.getStatus())) { %>
+                                                <% } else if (r.getStatus() == 3) { %>
                                                     <span class="badge bg-danger">Đã từ chối</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Không rõ</span>
                                                 <% } %>
                                             </td>
                                             <td>
-                                                <% if ("INPROGRESS".equals(r.getStatus())) { %>
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="cancelRequest(<%= r.getRid() %>)">
-                                                        <i class="bi bi-x-circle"></i> Hủy
+                                                    <% if (r.getStatus() == 1) { %>
+                                                        <button class="btn btn-sm btn-outline-danger" data-id="<%= r.getRid() %>" onclick="cancelRequest(this.dataset.id)">
+                                                            <i class="bi bi-x-circle"></i> Hủy
+                                                        </button>
+                                                    <% } %>
+                                                    <button class="btn btn-sm btn-outline-info" data-id="<%= r.getRid() %>" onclick="viewDetails(this.dataset.id)">
+                                                        <i class="bi bi-eye"></i> Xem
                                                     </button>
-                                                <% } %>
-                                                <button class="btn btn-sm btn-outline-info" onclick="viewDetails(<%= r.getRid() %>)">
-                                                    <i class="bi bi-eye"></i> Xem
-                                                </button>
                                             </td>
                                         </tr>
                                     <% } %>
@@ -111,37 +115,38 @@
                                 </thead>
                                 <tbody>
                                     <% if (subs != null) { %>
-        <% for (RequestForLeave r : subs) { %>
+                                        <% for (RequestForLeave r : subs) { %>
                                             <tr>
                                                 <td><%= r.getRid() %></td>
-                                                <td><%= r.getEmployeeName() != null ? r.getEmployeeName() : "N/A" %></td>
-                                                <td><%= r.getTitle() != null ? r.getTitle() : "Nghỉ phép" %></td>
-                                                <td><%= r.getReason() %></td>
-                                                <td><%= r.getFrom() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getFrom()) : "" %></td>
-                                                <td><%= r.getTo() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getTo()) : "" %></td>
-                                                <td><%= r.getDuration() %> ngày</td>
+                                                <td><%= r.getCreatedByName() != null ? r.getCreatedByName() : "N/A" %></td>
+                                                <td><%= r.getReason() != null ? r.getReason() : "Nghỉ phép" %></td>
+                                                <td><%= r.getFromDate() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getFromDate()) : "" %></td>
+                                                <td><%= r.getToDate() != null ? new java.text.SimpleDateFormat("dd/MM/yyyy").format(r.getToDate()) : "" %></td>
+                                                <td><%= (r.getFromDate() != null && r.getToDate() != null) ? ((int)((r.getToDate().getTime() - r.getFromDate().getTime()) / (1000*60*60*24) + 1)) : 0 %> ngày</td>
                                                 <td>
-                                                    <% if ("INPROGRESS".equals(r.getStatus())) { %>
+                                                    <% if (r.getStatus() == 1) { %>
                                                         <span class="badge bg-warning">Chờ duyệt</span>
-                                                    <% } else if ("APPROVED".equals(r.getStatus())) { %>
+                                                    <% } else if (r.getStatus() == 2) { %>
                                                         <span class="badge bg-success">Đã duyệt</span>
-                                                    <% } else if ("REJECTED".equals(r.getStatus())) { %>
+                                                    <% } else if (r.getStatus() == 3) { %>
                                                         <span class="badge bg-danger">Đã từ chối</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary">Không rõ</span>
                                                     <% } %>
                                                 </td>
                                                 <td>
-                                                    <% if ("INPROGRESS".equals(r.getStatus())) { %>
+                                                    <% if (r.getStatus() == 1) { %>
                                                         <a href="${pageContext.request.contextPath}/request/review?id=<%= r.getRid() %>" class="btn btn-sm btn-primary">
                                                             <i class="bi bi-check-circle"></i> Duyệt
                                                         </a>
                                                     <% } %>
-                                                    <button class="btn btn-sm btn-outline-info" onclick="viewDetails(<%= r.getRid() %>)">
+                                                    <button class="btn btn-sm btn-outline-info" data-id="<%= r.getRid() %>" onclick="viewDetails(this.dataset.id)">
                                                         <i class="bi bi-eye"></i> Xem
                                                     </button>
                                                 </td>
                                             </tr>
                                         <% } %>
-        <% } %>
+                                    <% } %>
                                 </tbody>
                             </table>
                         </div>

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.sql.Date" %>
 <%
     String msg = (String) request.getAttribute("msg");

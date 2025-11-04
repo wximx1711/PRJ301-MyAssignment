@@ -33,14 +33,18 @@ public class LoginController extends HttpServlet {
 
         try {
             // Lấy thông tin người dùng từ database
+            System.out.println("LoginController: Attempting login for username='" + username + "'");
             UserDBContext userDB = new UserDBContext();
             User user = userDB.get(username.trim(), password.trim());
 
             if (user == null) {
+                System.out.println("LoginController: Login failed for username='" + username + "'");
                 req.setAttribute("error", "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại!");
                 req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);
                 return;
             }
+            
+            System.out.println("LoginController: Login successful for user: " + user.getFullName() + " (ID: " + user.getId() + ")");
 
             // Lưu thông tin người dùng vào session
             HttpSession session = req.getSession(true);
@@ -50,9 +54,31 @@ public class LoginController extends HttpServlet {
             // Chuyển hướng đến trang chính sau khi đăng nhập
             resp.sendRedirect(req.getContextPath() + "/home");
             
+        } catch (RuntimeException e) {
+            // Database connection error
+            String errorMsg = e.getMessage();
+            System.err.println("LoginController: Database error - " + errorMsg);
+            e.printStackTrace();
+            
+            // User-friendly error message
+            String userMessage;
+            if (errorMsg.contains("không tồn tại") || errorMsg.contains("Cannot open database")) {
+                userMessage = "Database chưa được tạo! Vui lòng chạy file SQL script 'leave_management_setup_v2.sql' để tạo database trước.";
+            } else if (errorMsg.contains("Login failed") || errorMsg.contains("Đăng nhập")) {
+                userMessage = "Lỗi kết nối SQL Server! Vui lòng kiểm tra SQL Server đang chạy và thông tin đăng nhập.";
+            } else if (errorMsg.contains("connection refused") || errorMsg.contains("connect")) {
+                userMessage = "Không thể kết nối đến SQL Server! Vui lòng kiểm tra SQL Server đang chạy.";
+            } else {
+                userMessage = "Lỗi hệ thống: " + errorMsg;
+            }
+            
+            req.setAttribute("error", userMessage);
+            req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);
         } catch (Exception e) {
-            e.printStackTrace(); // Log error for debugging
-            req.setAttribute("error", "Lỗi hệ thống: " + e.getMessage() + ". Vui lòng liên hệ quản trị viên.");
+            // Other unexpected errors
+            System.err.println("LoginController: Unexpected error - " + e.getMessage());
+            e.printStackTrace();
+            req.setAttribute("error", "Lỗi hệ thống không xác định: " + e.getMessage() + ". Vui lòng liên hệ quản trị viên.");
             req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);
         }
     }

@@ -9,8 +9,14 @@ public class UserDBContext extends DBContext {
 
     public User get(String username, String password) {
         if (username == null || password == null) {
+            System.err.println("UserDBContext.get(): username or password is null");
             return null;
         }
+        
+        String trimmedUsername = username.trim();
+        String trimmedPassword = password.trim();
+        
+        System.out.println("UserDBContext.get(): Attempting login with username='" + trimmedUsername + "', password='" + trimmedPassword + "'");
         
         String sql = """
             SELECT TOP 1 u.id, u.username, u.full_name, u.role_id, u.department_id,
@@ -21,13 +27,21 @@ public class UserDBContext extends DBContext {
             JOIN Departments d ON d.id = u.department_id
             WHERE u.username = ? AND u.password_hash = ? AND u.is_active = 1
         """;
+        
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        
         try {
-            PreparedStatement stm = connection.prepareStatement(sql);
-            stm.setString(1, username.trim());
-            stm.setString(2, password.trim());
+            stm = connection.prepareStatement(sql);
+            stm.setString(1, trimmedUsername);
+            stm.setString(2, trimmedPassword);
             
-            ResultSet rs = stm.executeQuery();
+            System.out.println("UserDBContext.get(): Executing query...");
+            rs = stm.executeQuery();
+            
             if (rs.next()) {
+                System.out.println("UserDBContext.get(): User found! ID=" + rs.getInt("id"));
+                
                 User u = new User();
                 u.setId(rs.getInt("id"));
                 u.setUsername(rs.getString("username"));
@@ -44,19 +58,46 @@ public class UserDBContext extends DBContext {
                 dept.setName(rs.getString("department_name"));
                 u.setDepartment(dept);
                 
-                u.setActive(true); // Since we filter is_active=1 in SQL
+                u.setActive(true);
                 
-                rs.close();
-                stm.close();
                 return u;
+            } else {
+                System.out.println("UserDBContext.get(): No user found with username='" + trimmedUsername + "' and password='" + trimmedPassword + "'");
+                
+                // Debug: Check if user exists
+                try {
+                    String debugSql = "SELECT username, password_hash, is_active FROM Users WHERE username = ?";
+                    PreparedStatement debugStm = connection.prepareStatement(debugSql);
+                    debugStm.setString(1, trimmedUsername);
+                    ResultSet debugRs = debugStm.executeQuery();
+                    
+                    if (debugRs.next()) {
+                        System.out.println("UserDBContext.get(): DEBUG - User exists: username='" + debugRs.getString("username") 
+                            + "', password_hash='" + debugRs.getString("password_hash") 
+                            + "', is_active=" + debugRs.getBoolean("is_active"));
+                    } else {
+                        System.out.println("UserDBContext.get(): DEBUG - User does not exist with username='" + trimmedUsername + "'");
+                    }
+                    debugRs.close();
+                    debugStm.close();
+                } catch (Exception debugE) {
+                    System.err.println("UserDBContext.get(): DEBUG query failed: " + debugE.getMessage());
+                }
             }
-            rs.close();
-            stm.close();
+            
             return null;
+            
         } catch (SQLException e) {
-            System.err.println("Database error in UserDBContext.get(): " + e.getMessage());
+            System.err.println("UserDBContext.get(): SQLException: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Error retrieving user: " + e.getMessage(), e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stm != null) stm.close();
+            } catch (SQLException e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
         }
     }
     

@@ -32,7 +32,7 @@
             </li>
         </c:if>
     </ul>
-    
+
     <div class="tab-content" id="requestTabsContent">
         <div class="tab-pane fade show active" id="mine" role="tabpanel">
             <div class="card">
@@ -111,7 +111,7 @@
                                 </thead>
                                 <tbody>
                                     <% if (subs != null) { %>
-                                        <% for (RequestForLeave r : subs) { %>
+        <% for (RequestForLeave r : subs) { %>
                                             <tr>
                                                 <td><%= r.getRid() %></td>
                                                 <td><%= r.getEmployeeName() != null ? r.getEmployeeName() : "N/A" %></td>
@@ -141,7 +141,7 @@
                                                 </td>
                                             </tr>
                                         <% } %>
-                                    <% } %>
+        <% } %>
                                 </tbody>
                             </table>
                         </div>

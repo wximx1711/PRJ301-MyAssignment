@@ -68,4 +68,8 @@ public class User {
     public int getUid() {
         return this.id;
     }
+    
+    public String getDisplayname() {
+        return this.fullName;
+    }
 }

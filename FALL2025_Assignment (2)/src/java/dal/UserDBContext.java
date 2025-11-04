@@ -47,4 +47,44 @@ public class UserDBContext extends DBContext {
             throw new RuntimeException("Error retrieving user", e);
         }
     }
+    
+    public int countSubordinates(int managerId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Users WHERE manager_id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, managerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countAllUsers() throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Users";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countActiveUsers() throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Users WHERE is_active = 1";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
 }

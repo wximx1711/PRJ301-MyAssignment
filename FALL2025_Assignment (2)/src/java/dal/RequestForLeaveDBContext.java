@@ -166,4 +166,91 @@ public class RequestForLeaveDBContext extends DBContext {
             throw new RuntimeException("Error retrieving subordinate requests", ex);
         }
     }
+    
+    public int countPendingRequestsForManager(int managerId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Requests r " +
+                    "JOIN Users u ON r.employee_id = u.id " +
+                    "WHERE u.manager_id = ? AND r.status = 'INPROGRESS'";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, managerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countUpcomingApprovals(int managerId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Requests r " +
+                    "JOIN Users u ON r.employee_id = u.id " +
+                    "WHERE u.manager_id = ? AND r.status = 'APPROVED' " +
+                    "AND r.start_date >= CAST(GETDATE() AS DATE)";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, managerId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countAllRequests() throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Requests";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countPendingRequests() throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Requests WHERE status = 'INPROGRESS'";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countMyPendingRequests(int userId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Requests WHERE employee_id = ? AND status = 'INPROGRESS'";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
+    
+    public int countMyApprovedRequests(int userId) throws SQLException {
+        String sql = "SELECT COUNT(*) as count FROM Requests WHERE employee_id = ? AND status = 'APPROVED'";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("count");
+                }
+            }
+        }
+        return 0;
+    }
 }

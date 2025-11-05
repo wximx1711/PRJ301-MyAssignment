@@ -13,6 +13,8 @@
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- DataTables CSS -->
@@ -46,6 +48,9 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 </head>
 <body>
+    <style>
+      body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/home">
@@ -101,6 +106,11 @@
                         <li class="nav-item d-flex align-items-center me-2">
                             <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/iam/password-requests" title="Service: Password resets">
                                 <i class="bi bi-gear"></i> Service
+                            </a>
+                        </li>
+                        <li class="nav-item d-flex align-items-center me-2">
+                            <a class="btn btn-warning btn-sm" href="${pageContext.request.contextPath}/admin/users/create">
+                                <i class="bi bi-person-plus"></i> Tạo user
                             </a>
                         </li>
                     </c:if>

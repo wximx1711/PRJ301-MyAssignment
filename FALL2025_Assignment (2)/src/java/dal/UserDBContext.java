@@ -140,4 +140,88 @@ public class UserDBContext extends DBContext {
         }
         return 0;
     }
+    
+    // ========== Admin helpers ==========
+    public java.util.List<Department> listDepartments() {
+        java.util.List<Department> list = new java.util.ArrayList<>();
+        String sql = "SELECT id, name FROM Departments ORDER BY name";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Department d = new Department();
+                d.setId(rs.getInt("id"));
+                d.setName(rs.getString("name"));
+                list.add(d);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading departments", e);
+        }
+        return list;
+    }
+
+    public java.util.List<Role> listRoles() {
+        java.util.List<Role> list = new java.util.ArrayList<>();
+        String sql = "SELECT id, code, name FROM Roles ORDER BY id";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Role r = new Role();
+                r.setId(rs.getInt("id"));
+                r.setCode(rs.getString("code"));
+                r.setName(rs.getString("name"));
+                list.add(r);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading roles", e);
+        }
+        return list;
+    }
+
+    public java.util.List<User> listManagers() {
+        java.util.List<User> list = new java.util.ArrayList<>();
+        String sql = "SELECT u.id, u.full_name FROM Users u JOIN Roles r ON r.id = u.role_id WHERE r.code IN ('MANAGER','LEADER') AND u.is_active = 1 ORDER BY u.full_name";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setFullName(rs.getString("full_name"));
+                list.add(u);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error loading managers", e);
+        }
+        return list;
+    }
+
+    public void createUser(String username, String password, String fullName, int roleId, int deptId, Integer managerId, boolean active) {
+        if (username == null || username.isBlank() || password == null || password.isBlank() || fullName == null || fullName.isBlank()) {
+            throw new IllegalArgumentException("Thiếu thông tin bắt buộc");
+        }
+        // Ensure unique username
+        try (PreparedStatement check = connection.prepareStatement("SELECT 1 FROM Users WHERE username = ?")) {
+            check.setString(1, username.trim());
+            try (ResultSet rs = check.executeQuery()) {
+                if (rs.next()) {
+                    throw new RuntimeException("Username đã tồn tại");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi kiểm tra username", e);
+        }
+
+        String sql = "INSERT INTO Users(username, password_hash, full_name, role_id, department_id, manager_id, is_active) VALUES (?,?,?,?,?,?,?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, username.trim());
+            ps.setString(2, password.trim()); // For assignment simplicity; production should hash
+            ps.setString(3, fullName.trim());
+            ps.setInt(4, roleId);
+            ps.setInt(5, deptId);
+            if (managerId == null) ps.setNull(6, java.sql.Types.INTEGER); else ps.setInt(6, managerId);
+            ps.setBoolean(7, active);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi tạo người dùng mới: " + e.getMessage(), e);
+        }
+    }
 }

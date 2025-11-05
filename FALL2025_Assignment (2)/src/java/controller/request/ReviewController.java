@@ -16,6 +16,11 @@ public class ReviewController extends BaseRequiredAuthorizationController {
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+            var user = (model.iam.User) req.getSession().getAttribute("user");
+            if (user == null || user.getRole() == null || !"ADMIN".equals(user.getRole().getCode())) {
+                resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền truy cập chức năng này");
+                return;
+            }
             String idParam = req.getParameter("id");
             if (idParam == null) {
                 resp.sendRedirect(req.getContextPath() + "/request/list");
@@ -39,6 +44,10 @@ public class ReviewController extends BaseRequiredAuthorizationController {
     @Override
     protected void processPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         var user = (model.iam.User) req.getSession().getAttribute("user");
+        if (user == null || user.getRole() == null || !"ADMIN".equals(user.getRole().getCode())) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền thực hiện hành động này");
+            return;
+        }
         int rid = Integer.parseInt(req.getParameter("rid"));
         int status = Integer.parseInt(req.getParameter("status"));
         String note = req.getParameter("note");

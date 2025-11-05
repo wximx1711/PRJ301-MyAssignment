@@ -5,6 +5,7 @@
 <%
     List<RequestForLeave> mine = (List<RequestForLeave>) request.getAttribute("mine");
     List<RequestForLeave> subs = (List<RequestForLeave>) request.getAttribute("subs");
+    model.iam.User __u = (model.iam.User) session.getAttribute("user");
 %>
 <%@ include file="../layout/header.jsp" %>
 
@@ -75,7 +76,7 @@
                                                 <% } %>
                                             </td>
                                             <td>
-                                                    <% if (r.getStatus() == 1) { %>
+                                                    <% if (r.getStatus() == 1 && __u != null && __u.getRole() != null && "ADMIN".equals(__u.getRole().getCode())) { %>
                                                         <button class="btn btn-sm btn-outline-danger" data-id="<%= r.getRid() %>" onclick="cancelRequest(this.dataset.id)">
                                                             <i class="bi bi-x-circle"></i> Hủy
                                                         </button>
@@ -150,10 +151,15 @@
                                                     <% } %>
                                                 </td>
                                                 <td>
-                                                    <% if (r.getStatus() == 1) { %>
-                                                        <a href="${pageContext.request.contextPath}/request/review?id=<%= r.getRid() %>" class="btn btn-sm btn-primary">
-                                                            <i class="bi bi-check-circle"></i> Duyệt
-                                                        </a>
+                                                    <% if (r.getStatus() == 1 && __u != null && __u.getRole() != null && "ADMIN".equals(__u.getRole().getCode())) { %>
+                                                        <div class="btn-group" role="group">
+                                                            <button class="btn btn-sm btn-success" onclick="approve(<%= r.getRid() %>, 2)">
+                                                                <i class="bi bi-check2"></i> Duyệt
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger" onclick="approve(<%= r.getRid() %>, 3)">
+                                                                <i class="bi bi-x"></i> Từ chối
+                                                            </button>
+                                                        </div>
                                                     <% } %>
                                                     <button class="btn btn-sm btn-outline-info" data-id="<%= r.getRid() %>" onclick="viewDetails(this.dataset.id)">
                                                         <i class="bi bi-eye"></i> Xem
@@ -201,6 +207,29 @@ function cancelRequest(requestId) {
 
 function viewDetails(requestId) {
     window.location.href = '${pageContext.request.contextPath}/request/view?id=' + requestId;
+}
+
+function approve(rid, status) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '${pageContext.request.contextPath}/request/review';
+    const idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'rid';
+    idInput.value = rid;
+    const statusInput = document.createElement('input');
+    statusInput.type = 'hidden';
+    statusInput.name = 'status';
+    statusInput.value = status;
+    const noteInput = document.createElement('input');
+    noteInput.type = 'hidden';
+    noteInput.name = 'note';
+    noteInput.value = '';
+    form.appendChild(idInput);
+    form.appendChild(statusInput);
+    form.appendChild(noteInput);
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 

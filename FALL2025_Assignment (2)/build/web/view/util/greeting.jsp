@@ -4,41 +4,69 @@
 
 <c:set var="pageTitle" value="Trang chủ" />
 
-<div class="container-fluid">
-    <!-- Welcome Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm bg-gradient-primary text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap">
-                        <div>
-                            <h1 class="mb-2">
-                                <i class="bi bi-person-circle me-2"></i>
-                                Chào mừng, ${user.displayname}!
-                            </h1>
-                            <p class="mb-1 opacity-75">
-                                <i class="bi bi-person-badge me-2"></i>
-                                Tài khoản của bạn: <strong>${user.username}</strong>
-                            </p>
-                            <p class="mb-0 opacity-75">
-                                <i class="bi bi-building me-2"></i>
-                                Phòng ban: <strong>${user.department.name}</strong>
-                            </p>
-                        </div>
-                        <div class="text-end mt-3 mt-md-0">
-                            <span class="badge bg-light text-dark px-3 py-2 fs-6">
-                                <i class="bi bi-shield-check me-1"></i>
-                                ${user.role.name}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Hero section matching login style -->
+<section class="home-hero">
+  <div class="home-hero__overlay"></div>
+  <div class="home-hero__wrap">
+    <div class="home-hero__content">
+      <div class="welcome text-white">
+        <h1 class="welcome-title">Chào mừng<br/>trở lại</h1>
+        <p class="welcome-desc">Hệ thống Quản lý Phép giúp bạn quản lý đơn nghỉ phép hiệu quả, theo dõi số dư, tạo đơn và xem lịch sử.</p>
+      </div>
+      <div class="glass-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="mb-1"><i class="bi bi-person-circle me-2"></i>${user.displayname}</h4>
+            <div class="text-muted small">${user.department.name} • ${user.role.name}</div>
+          </div>
         </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <div class="mini-stat bg-warning-subtle">
+              <div class="mini-icon text-warning"><i class="bi bi-hourglass-split"></i></div>
+              <div>
+                <div class="h4 mb-0">
+                  <c:choose>
+                    <c:when test="${user.role.code eq 'ADMIN' or user.role.code eq 'MANAGER' or user.role.code eq 'LEADER'}">${pendingRequests}</c:when>
+                    <c:otherwise>${myPendingRequests}</c:otherwise>
+                  </c:choose>
+                </div>
+                <div class="text-muted small">Đơn chờ duyệt</div>
+              </div>
+            </div>
+          </div>
+          <c:if test="${user.role.code eq 'MANAGER' or user.role.code eq 'LEADER'}">
+            <div class="col-6">
+              <div class="mini-stat bg-success-subtle">
+                <div class="mini-icon text-success"><i class="bi bi-people"></i></div>
+                <div>
+                  <div class="h4 mb-0">${totalSubordinates != null ? totalSubordinates : 0}</div>
+                  <div class="text-muted small">Cấp dưới</div>
+                </div>
+              </div>
+            </div>
+          </c:if>
+        </div>
+        <div class="row g-2">
+          <div class="col-12 col-md-6">
+            <a href="${pageContext.request.contextPath}/request/create" class="btn btn-primary w-100 p-3"><i class="bi bi-plus-circle me-2"></i>Tạo đơn nghỉ phép</a>
+          </div>
+          <div class="col-12 col-md-6">
+            <a href="${pageContext.request.contextPath}/request/list" class="btn btn-outline-primary w-100 p-3"><i class="bi bi-list-ul me-2"></i>Danh sách đơn</a>
+          </div>
+          <c:if test="${user.role.code eq 'MANAGER' or user.role.code eq 'LEADER' or user.role.code eq 'ADMIN'}">
+            <div class="col-12">
+              <a href="${pageContext.request.contextPath}/request/review" class="btn btn-success w-100 p-3"><i class="bi bi-check-circle me-2"></i>Duyệt đơn</a>
+            </div>
+          </c:if>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
 
     <!-- Quick Stats Cards -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 mt-4">
         <!-- Card 1: Pending Requests -->
         <div class="col-md-6 col-lg-3">
             <div class="card h-100 border-0 shadow-sm hover-card">
@@ -289,6 +317,19 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+
+    /* Hero styles to match login */
+    /* Softer, readable hero background with gradient instead of photo */
+    .home-hero{position:relative;min-height:56vh;background:linear-gradient(135deg,#667eea 0%, #764ba2 60%, #3f3d56 100%);display:flex;align-items:center}
+    .home-hero__overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.1) 100%)}
+    .home-hero__wrap{position:relative;z-index:1;width:100%;padding:40px 20px;display:flex;justify-content:center}
+    .home-hero__content{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .glass-card{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    .welcome-title{font-size:3.5rem;font-weight:800;line-height:1.1;margin-bottom:10px}
+    .welcome-desc{color:rgba(255,255,255,.9);max-width:520px}
+    .mini-stat{display:flex;gap:12px;align-items:center;border-radius:14px;padding:12px 14px}
+    .mini-icon{font-size:1.5rem}
+    @media (max-width: 992px){.home-hero__content{grid-template-columns:1fr;gap:30px}}
 </style>
 
 <script>

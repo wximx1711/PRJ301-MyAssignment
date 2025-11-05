@@ -62,28 +62,78 @@ public class RequestForLeaveDBContext extends DBContext {
     }
 
     public void approveOrReject(int uid, int rid, int status, String note) {
-        String sql = "{call dbo.sp_Request_ApproveReject(?, ?, ?, ?)}";
-        try (CallableStatement cs = connection.prepareCall(sql)) {
-            cs.setInt(1, uid);
-            cs.setInt(2, rid);
-            cs.setInt(3, status);
-            cs.setString(4, note);
-            cs.execute();
+        // status: 2 = APPROVED, 3 = REJECTED (kept for backward compatibility)
+        String newStatus = (status == 2) ? "APPROVED" : (status == 3 ? "REJECTED" : "INPROGRESS");
+        String sql = "UPDATE Requests SET status = ?, processed_by = ?, processed_at = SYSUTCDATETIME(), manager_note = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setInt(2, uid);
+            ps.setString(3, note);
+            ps.setInt(4, rid);
+            ps.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException("Error approving/rejecting request", ex);
         }
     }
 
     public void create(int uid, Date from, Date to, String reason) {
-        String sql = "{call dbo.sp_Request_Create(?, ?, ?, ?)}";
-        try (CallableStatement cs = connection.prepareCall(sql)) {
-            cs.setInt(1, uid);
-            cs.setDate(2, from);
-            cs.setDate(3, to);
-            cs.setString(4, reason);
-            cs.execute();
+        // Insert trực tiếp theo schema mới
+        // Chọn type_id mặc định là ANNUAL
+        String sql = "INSERT INTO Requests (employee_id, type_id, title, reason, start_date, end_date, status, created_by)\n" +
+                     "VALUES (?, (SELECT TOP 1 id FROM LeaveTypes WHERE code = N'ANNUAL'), N'Nghỉ phép', ?, ?, ?, N'INPROGRESS', ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, uid);
+            ps.setString(2, reason);
+            ps.setDate(3, from);
+            ps.setDate(4, to);
+            ps.setInt(5, uid);
+            ps.executeUpdate();
         } catch (SQLException ex) {
             throw new RuntimeException("Error creating leave request", ex);
+        }
+    }
+
+    public RequestForLeave getById(int id) {
+        String sql = """
+            SELECT r.id AS rid, r.employee_id, r.title, r.reason, r.start_date AS from_date, r.end_date AS to_date,
+                   r.status, r.created_at AS created_time, r.created_by, r.processed_by, r.manager_note,
+                   u.full_name as created_by_name, p.full_name as processed_by_name
+            FROM Requests r
+            JOIN Users u ON u.id = r.created_by
+            LEFT JOIN Users p ON p.id = r.processed_by
+            WHERE r.id = ?
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    RequestForLeave r = new RequestForLeave();
+                    r.setRid(rs.getInt("rid"));
+                    r.setCreatedBy(rs.getInt("created_by"));
+                    r.setCreatedTime(rs.getTimestamp("created_time"));
+                    r.setFromDate(rs.getDate("from_date"));
+                    r.setToDate(rs.getDate("to_date"));
+                    r.setReason(rs.getString("reason"));
+                    r.setStatus(mapStatus(rs.getString("status")));
+                    r.setProcessedBy(rs.getInt("processed_by"));
+                    r.setCreatedByName(rs.getString("created_by_name"));
+                    r.setProcessedByName(rs.getString("processed_by_name"));
+                    return r;
+                }
+            }
+            return null;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error retrieving request by id", ex);
+        }
+    }
+
+    private int mapStatus(String statusText) {
+        if (statusText == null) return 0;
+        switch (statusText) {
+            case "INPROGRESS": return 1;
+            case "APPROVED": return 2;
+            case "REJECTED": return 3;
+            default: return 0;
         }
     }
 
@@ -111,7 +161,7 @@ public class RequestForLeaveDBContext extends DBContext {
                 r.setFromDate(rs.getDate("from_date"));
                 r.setToDate(rs.getDate("to_date"));
                 r.setReason(rs.getString("reason"));
-                r.setStatus(rs.getInt("status"));
+                r.setStatus(mapStatus(rs.getString("status")));
                 r.setProcessedBy(rs.getInt("processed_by"));
                 r.setCreatedByName(rs.getString("created_by_name"));
                 r.setProcessedByName(rs.getString("processed_by_name"));
@@ -150,7 +200,7 @@ public class RequestForLeaveDBContext extends DBContext {
                 r.setFromDate(rs.getDate("from_date"));
                 r.setToDate(rs.getDate("to_date"));
                 r.setReason(rs.getString("reason"));
-                r.setStatus(rs.getInt("status"));
+                r.setStatus(mapStatus(rs.getString("status")));
                 r.setProcessedBy(rs.getInt("processed_by"));
                 r.setCreatedByName(rs.getString("created_by_name"));
                 r.setProcessedByName(rs.getString("processed_by_name"));
@@ -207,7 +257,7 @@ public class RequestForLeaveDBContext extends DBContext {
                 r.setFromDate(rs.getDate("from_date"));
                 r.setToDate(rs.getDate("to_date"));
                 r.setReason(rs.getString("reason"));
-                r.setStatus(rs.getInt("status"));
+                r.setStatus(mapStatus(rs.getString("status")));
                 r.setProcessedBy(rs.getInt("processed_by"));
                 r.setCreatedByName(rs.getString("created_by_name"));
                 r.setProcessedByName(rs.getString("processed_by_name"));
@@ -246,7 +296,7 @@ public class RequestForLeaveDBContext extends DBContext {
                 r.setFromDate(rs.getDate("from_date"));
                 r.setToDate(rs.getDate("to_date"));
                 r.setReason(rs.getString("reason"));
-                r.setStatus(rs.getInt("status"));
+                r.setStatus(mapStatus(rs.getString("status")));
                 r.setProcessedBy(rs.getInt("processed_by"));
                 r.setCreatedByName(rs.getString("created_by_name"));
                 r.setProcessedByName(rs.getString("processed_by_name"));

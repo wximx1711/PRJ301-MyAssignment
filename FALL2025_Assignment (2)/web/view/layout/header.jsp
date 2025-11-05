@@ -1,4 +1,4 @@
-<%@ page pageEncoding="UTF-8" %>
+<%-- header.jsp intentionally has no page directive to avoid duplicate contentType conflicts when included --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
     model.iam.User user = (model.iam.User) session.getAttribute("user");

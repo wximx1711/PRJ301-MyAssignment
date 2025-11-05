@@ -16,14 +16,23 @@ public class ReviewController extends BaseRequiredAuthorizationController {
     @Override
     protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            var user = (model.iam.User) req.getSession().getAttribute("user");
+            String idParam = req.getParameter("id");
+            if (idParam == null) {
+                resp.sendRedirect(req.getContextPath() + "/request/list");
+                return;
+            }
+            int rid = Integer.parseInt(idParam);
             RequestForLeaveDBContext db = new RequestForLeaveDBContext();
-            int myEid = db.getMyEid(user.getUid());
-            req.setAttribute("requests", db.listOfSubordinates(myEid));
+            var request = db.getById(rid);
+            if (request == null) {
+                req.setAttribute("message", "Không tìm thấy đơn yêu cầu");
+            } else {
+                req.setAttribute("request", request);
+            }
             req.getRequestDispatcher("/view/request/review.jsp").forward(req, resp);
         } catch (RuntimeException ex) {
-            req.setAttribute("message", "Error loading requests: " + ex.getMessage());
-            req.getRequestDispatcher("/view/auth/message.jsp").forward(req, resp);
+            req.setAttribute("message", "Error loading request: " + ex.getMessage());
+            req.getRequestDispatcher("/view/request/review.jsp").forward(req, resp);
         }
     }
 
@@ -38,7 +47,7 @@ public class ReviewController extends BaseRequiredAuthorizationController {
             resp.sendRedirect(req.getContextPath() + "/request/list");
         } catch (RuntimeException ex) {
             req.setAttribute("message", ex.getMessage());
-            req.getRequestDispatcher("/view/auth/message.jsp").forward(req, resp);
+            req.getRequestDispatcher("/view/request/review.jsp").forward(req, resp);
         }
     }
 }

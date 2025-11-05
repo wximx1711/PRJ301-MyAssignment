@@ -21,13 +21,13 @@
     <ul class="nav nav-tabs mb-4" id="requestTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="mine-tab" data-bs-toggle="tab" data-bs-target="#mine" type="button">
-                <i class="bi bi-person"></i> Đơn của tôi (<%= mine != null ? mine.size() : 0 %>)
+                <i class="bi bi-person"></i> Đơn của tôi (<%= request.getAttribute("totalMine") != null ? request.getAttribute("totalMine") : 0 %>)
             </button>
         </li>
         <c:if test="${user.role.code eq 'MANAGER' or user.role.code eq 'LEADER' or user.role.code eq 'ADMIN'}">
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="subs-tab" data-bs-toggle="tab" data-bs-target="#subs" type="button">
-                    <i class="bi bi-people"></i> Đơn cần duyệt (<%= subs != null ? subs.size() : 0 %>)
+                    <i class="bi bi-people"></i> Đơn cần duyệt (<%= request.getAttribute("totalSubs") != null ? request.getAttribute("totalSubs") : 0 %>)
                 </button>
             </li>
         </c:if>
@@ -89,6 +89,21 @@
                                 <% } %>
                             </tbody>
                         </table>
+                        <!-- Paging for mine -->
+                        <nav aria-label="Page navigation mine">
+                            <ul class="pagination justify-content-center mt-2">
+                                <li class="page-item <%= (Integer)request.getAttribute("pageMine") == 1 ? "disabled" : "" %>">
+                                    <a class="page-link" href="?pageMine=<%= Math.max(1, (Integer)request.getAttribute("pageMine") - 1) %>&sizeMine=<%=request.getAttribute("sizeMine")%>">Prev</a>
+                                </li>
+                                <% int tpMine = (request.getAttribute("totalPagesMine") != null) ? (Integer)request.getAttribute("totalPagesMine") : 1; int curMine = (request.getAttribute("pageMine") != null) ? (Integer)request.getAttribute("pageMine") : 1; %>
+                                <% for (int i = 1; i <= tpMine; i++) { %>
+                                    <li class="page-item <%= (i == curMine) ? "active" : "" %>"><a class="page-link" href="?pageMine=<%=i%>&sizeMine=<%=request.getAttribute("sizeMine")%>"><%=i%></a></li>
+                                <% } %>
+                                <li class="page-item <%= curMine >= tpMine ? "disabled" : "" %>">
+                                    <a class="page-link" href="?pageMine=<%= Math.min(tpMine, curMine + 1) %>&sizeMine=<%=request.getAttribute("sizeMine")%>">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -149,6 +164,21 @@
                                     <% } %>
                                 </tbody>
                             </table>
+                            <!-- Paging for subs -->
+                            <nav aria-label="Page navigation subs">
+                                <ul class="pagination justify-content-center mt-2">
+                                    <li class="page-item <%= (Integer)request.getAttribute("pageSubs") == 1 ? "disabled" : "" %>">
+                                        <a class="page-link" href="?pageSubs=<%= Math.max(1, (Integer)request.getAttribute("pageSubs") - 1) %>&sizeSubs=<%=request.getAttribute("sizeSubs")%>">Prev</a>
+                                    </li>
+                                    <% int tpSubs = (request.getAttribute("totalPagesSubs") != null) ? (Integer)request.getAttribute("totalPagesSubs") : 1; int curSubs = (request.getAttribute("pageSubs") != null) ? (Integer)request.getAttribute("pageSubs") : 1; %>
+                                    <% for (int i = 1; i <= tpSubs; i++) { %>
+                                        <li class="page-item <%= (i == curSubs) ? "active" : "" %>"><a class="page-link" href="?pageSubs=<%=i%>&sizeSubs=<%=request.getAttribute("sizeSubs")%>"><%=i%></a></li>
+                                    <% } %>
+                                    <li class="page-item <%= curSubs >= tpSubs ? "disabled" : "" %>">
+                                        <a class="page-link" href="?pageSubs=<%= Math.min(tpSubs, curSubs + 1) %>&sizeSubs=<%=request.getAttribute("sizeSubs")%>">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -158,25 +188,9 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    $('#myRequestsTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
-        },
-        order: [[0, 'desc']],
-        pageLength: 10
-    });
-    
-    <c:if test="${user.role.code eq 'MANAGER' or user.role.code eq 'LEADER' or user.role.code eq 'ADMIN'}">
-        $('#subsRequestsTable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/vi.json'
-            },
-            order: [[0, 'desc']],
-            pageLength: 10
-        });
-    </c:if>
-});
+// Optional: you can enable client-side table enhancement here (DataTables) but
+// server-side paging is used for the requests tables. Keeping tables plain
+// ensures predictable pagination controlled by the server.
 
 function cancelRequest(requestId) {
     if (confirm('Bạn có chắc chắn muốn hủy đơn này?')) {

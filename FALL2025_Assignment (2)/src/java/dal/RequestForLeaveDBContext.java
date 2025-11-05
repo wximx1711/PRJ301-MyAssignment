@@ -123,6 +123,58 @@ public class RequestForLeaveDBContext extends DBContext {
         }
     }
 
+    // Server-side paging for 'mine' requests
+    public List<RequestForLeave> listMinePage(int myEid, int offset, int pageSize) {
+        String sql = """
+            SELECT r.id AS rid, r.employee_id, r.title, r.reason, r.start_date AS from_date, r.end_date AS to_date,
+                   r.status, r.created_at AS created_time, r.created_by, r.processed_by,
+                   u.full_name as created_by_name, p.full_name as processed_by_name
+            FROM Requests r
+            JOIN Users u ON u.id = r.created_by
+            LEFT JOIN Users p ON p.id = r.processed_by
+            WHERE r.employee_id = ?
+            ORDER BY r.created_at DESC
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+        """;
+        List<RequestForLeave> requests = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, myEid);
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RequestForLeave r = new RequestForLeave();
+                r.setRid(rs.getInt("rid"));
+                r.setCreatedBy(rs.getInt("created_by"));
+                r.setCreatedTime(rs.getTimestamp("created_time"));
+                r.setFromDate(rs.getDate("from_date"));
+                r.setToDate(rs.getDate("to_date"));
+                r.setReason(rs.getString("reason"));
+                r.setStatus(rs.getInt("status"));
+                r.setProcessedBy(rs.getInt("processed_by"));
+                r.setCreatedByName(rs.getString("created_by_name"));
+                r.setProcessedByName(rs.getString("processed_by_name"));
+                requests.add(r);
+            }
+            return requests;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error retrieving leave requests (paged)", ex);
+        }
+    }
+
+    public int countMine(int myEid) {
+        String sql = "SELECT COUNT(*) as cnt FROM Requests WHERE employee_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, myEid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt");
+            }
+            return 0;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error counting mine requests", ex);
+        }
+    }
+
     public int getMyEid(int uid) {
         // In the updated schema we use Users.id as the employee identifier.
         // Controllers already pass the authenticated user's id (uid),
@@ -164,6 +216,58 @@ public class RequestForLeaveDBContext extends DBContext {
             return requests;
         } catch (SQLException ex) {
             throw new RuntimeException("Error retrieving subordinate requests", ex);
+        }
+    }
+
+    // Server-side paging for subordinate requests
+    public List<RequestForLeave> listOfSubordinatesPage(int myEid, int offset, int pageSize) {
+        String sql = """
+            SELECT r.id AS rid, r.employee_id, r.title, r.reason, r.start_date AS from_date, r.end_date AS to_date,
+                   r.status, r.created_at AS created_time, r.created_by, r.processed_by,
+                   u.full_name as created_by_name, p.full_name as processed_by_name
+            FROM Requests r
+            JOIN Users u ON u.id = r.created_by
+            LEFT JOIN Users p ON p.id = r.processed_by
+            WHERE r.created_by IN (SELECT id FROM Users WHERE manager_id = ?)
+            ORDER BY r.created_at DESC
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+        """;
+        List<RequestForLeave> requests = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, myEid);
+            ps.setInt(2, offset);
+            ps.setInt(3, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RequestForLeave r = new RequestForLeave();
+                r.setRid(rs.getInt("rid"));
+                r.setCreatedBy(rs.getInt("created_by"));
+                r.setCreatedTime(rs.getTimestamp("created_time"));
+                r.setFromDate(rs.getDate("from_date"));
+                r.setToDate(rs.getDate("to_date"));
+                r.setReason(rs.getString("reason"));
+                r.setStatus(rs.getInt("status"));
+                r.setProcessedBy(rs.getInt("processed_by"));
+                r.setCreatedByName(rs.getString("created_by_name"));
+                r.setProcessedByName(rs.getString("processed_by_name"));
+                requests.add(r);
+            }
+            return requests;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error retrieving subordinate requests (paged)", ex);
+        }
+    }
+
+    public int countSubordinates(int myEid) {
+        String sql = "SELECT COUNT(*) as cnt FROM Requests WHERE created_by IN (SELECT id FROM Users WHERE manager_id = ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, myEid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("cnt");
+            }
+            return 0;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error counting subordinate requests", ex);
         }
     }
     

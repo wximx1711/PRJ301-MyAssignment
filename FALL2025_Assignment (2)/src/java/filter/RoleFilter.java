@@ -35,8 +35,9 @@ public class RoleFilter implements Filter {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
                 return;
             }
-        } else if (path.startsWith("/request/approve") || path.startsWith("/approvals")) {
-            if (!"MANAGER".equals(role) && !"LEADER".equals(role)) {
+        } else if (path.startsWith("/request/approve") || path.startsWith("/approvals") || path.startsWith("/request/review")) {
+            // Chỉ ADMIN mới được duyệt/hủy theo yêu cầu
+            if (!"ADMIN".equals(role)) {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied");
                 return;
             }

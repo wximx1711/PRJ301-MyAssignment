@@ -85,5 +85,15 @@ public class NotificationDBContext extends DBContext {
             stmt.executeUpdate();
         }
     }
+
+    public void markAllRead(int userId) {
+        String sql = "UPDATE Notifications SET is_read = 1, read_at = SYSUTCDATETIME() WHERE user_id = ? AND is_read = 0";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error marking notifications read", e);
+        }
+    }
 }
 

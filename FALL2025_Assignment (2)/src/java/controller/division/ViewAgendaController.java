@@ -2,6 +2,7 @@ package controller.division;
 
 import controller.iam.BaseRequiredAuthorizationController;
 import dal.RequestForLeaveDBContext;
+import dal.UserDBContext;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -22,8 +23,15 @@ public class ViewAgendaController extends BaseRequiredAuthorizationController {
             String toStr = req.getParameter("to");
             String didStr = req.getParameter("did");
 
-            if (fromStr == null || toStr == null || didStr == null) {
-                throw new IllegalArgumentException("Missing required parameters: from, to, and did are required");
+            // Defaults: tuần hiện tại và phòng ban của user nếu thiếu
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDate startDef = today.with(java.time.DayOfWeek.MONDAY);
+            java.time.LocalDate endDef = startDef.plusDays(6);
+            if (fromStr == null) fromStr = startDef.toString();
+            if (toStr == null) toStr = endDef.toString();
+            if (didStr == null) {
+                var u = (model.iam.User) req.getSession().getAttribute("user");
+                didStr = String.valueOf(u.getDepartment().getId());
             }
 
             Date from, to;
@@ -45,8 +53,13 @@ public class ViewAgendaController extends BaseRequiredAuthorizationController {
             RequestForLeaveDBContext db = new RequestForLeaveDBContext();
             List<Map<String, Object>> rows = db.getAgenda(did, from, to);
 
-            // Pass data to JSP
+            // Pass data to JSP + department list for filter
             req.setAttribute("rows", rows);
+            UserDBContext udb = new UserDBContext();
+            req.setAttribute("departments", udb.listDepartments());
+            req.setAttribute("from", from);
+            req.setAttribute("to", to);
+            req.setAttribute("did", did);
             req.getRequestDispatcher("/view/division/agenda.jsp").forward(req, resp);
             
         } catch (IllegalArgumentException e) {
@@ -71,6 +84,11 @@ public class ViewAgendaController extends BaseRequiredAuthorizationController {
 
         // Truyền dữ liệu sang trang JSP
         req.setAttribute("rows", rows);
+        UserDBContext udb = new UserDBContext();
+        req.setAttribute("departments", udb.listDepartments());
+        req.setAttribute("from", from);
+        req.setAttribute("to", to);
+        req.setAttribute("did", did);
         req.getRequestDispatcher("/view/division/agenda.jsp").forward(req, resp);
     }
 }

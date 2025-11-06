@@ -224,4 +224,35 @@ public class UserDBContext extends DBContext {
             throw new RuntimeException("Lỗi tạo người dùng mới: " + e.getMessage(), e);
         }
     }
+
+    // Admin list/reset/deactivate helpers
+    public java.util.List<User> listAll() {
+        java.util.List<User> list = new java.util.ArrayList<>();
+        String sql = "SELECT u.id, u.username, u.full_name, u.is_active, r.code role_code, d.name dept FROM Users u JOIN Roles r ON r.id=u.role_id JOIN Departments d ON d.id=u.department_id ORDER BY u.id DESC";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setFullName(rs.getString("full_name"));
+                u.setActive(rs.getBoolean("is_active"));
+                Role r = new Role(); r.setCode(rs.getString("role_code")); u.setRole(r);
+                Department d = new Department(); d.setName(rs.getString("dept")); u.setDepartment(d);
+                list.add(u);
+            }
+        } catch (SQLException e) { throw new RuntimeException("Error listing users", e); }
+        return list;
+    }
+
+    public void setActive(int uid, boolean active) {
+        String sql = "UPDATE Users SET is_active = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) { ps.setBoolean(1, active); ps.setInt(2, uid); ps.executeUpdate(); }
+        catch (SQLException e) { throw new RuntimeException("Error updating user active", e); }
+    }
+
+    public void resetPassword(int uid, String newPass) {
+        String sql = "UPDATE Users SET password_hash = ? WHERE id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) { ps.setString(1, newPass); ps.setInt(2, uid); ps.executeUpdate(); }
+        catch (SQLException e) { throw new RuntimeException("Error resetting password", e); }
+    }
 }

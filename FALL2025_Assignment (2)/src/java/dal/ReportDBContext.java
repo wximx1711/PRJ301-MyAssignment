@@ -82,6 +82,19 @@ public class ReportDBContext extends DBContext {
         }
         return summary;
     }
+
+    public Map<String, Object> getSummary() {
+        int year = java.time.LocalDate.now().getYear();
+        try {
+            Map<String, Object> res = new HashMap<>();
+            res.put("summary", getLeaveSummary(year));
+            res.put("trends", getLeaveUsageTrends(year));
+            res.put("types", getChartData(year));
+            return res;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error building report overview", e);
+        }
+    }
     
     public List<Map<String, Object>> getChartData(int year) throws SQLException {
         List<Map<String, Object>> chartData = new ArrayList<>();

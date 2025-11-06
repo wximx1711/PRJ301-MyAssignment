@@ -12,6 +12,41 @@
 <c:set var="pageTitle" value="Danh sách đơn nghỉ phép" />
 
 <div class="container-fluid">
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <form class="row g-3" method="get" action="">
+                <div class="col-md-2">
+                    <label class="form-label">Từ ngày</label>
+                    <input type="date" class="form-control" name="from" value="${from}" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Đến ngày</label>
+                    <input type="date" class="form-control" name="to" value="${to}" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select class="form-select" name="status">
+                        <option value="">-- Tất cả --</option>
+                        <option value="INPROGRESS" ${status == 'INPROGRESS' ? 'selected' : ''}>Chờ duyệt</option>
+                        <option value="APPROVED" ${status == 'APPROVED' ? 'selected' : ''}>Đã duyệt</option>
+                        <option value="REJECTED" ${status == 'REJECTED' ? 'selected' : ''}>Đã từ chối</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Loại phép</label>
+                    <select class="form-select" name="typeId">
+                        <option value="">-- Tất cả --</option>
+                        <c:forEach items="${leaveTypes}" var="lt">
+                            <option value="${lt.id}" ${typeId == lt.id ? 'selected' : ''}>${lt.name}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100"><i class="bi bi-filter"></i> Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-list-ul"></i> Danh sách đơn nghỉ phép</h1>
         <a href="${pageContext.request.contextPath}/request/create" class="btn btn-primary">
@@ -210,27 +245,29 @@ function viewDetails(requestId) {
 }
 
 function approve(rid, status) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '${pageContext.request.contextPath}/request/review';
-    const idInput = document.createElement('input');
-    idInput.type = 'hidden';
-    idInput.name = 'rid';
-    idInput.value = rid;
-    const statusInput = document.createElement('input');
-    statusInput.type = 'hidden';
-    statusInput.name = 'status';
-    statusInput.value = status;
-    const noteInput = document.createElement('input');
-    noteInput.type = 'hidden';
-    noteInput.name = 'note';
-    noteInput.value = '';
-    form.appendChild(idInput);
-    form.appendChild(statusInput);
-    form.appendChild(noteInput);
-    document.body.appendChild(form);
-    form.submit();
+    if (!window.Swal) return submitApprove(rid,status);
+    Swal.fire({
+      title: status==2?'Duyệt đơn?':'Từ chối đơn?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận'
+    }).then(r=>{ if(r.isConfirmed) submitApprove(rid,status); });
 }
+function submitApprove(rid,status){
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '${pageContext.request.contextPath}/request/review';
+  form.innerHTML = '<input type="hidden" name="rid" value="'+rid+'"/>\
+  <input type="hidden" name="status" value="'+status+'"/>\
+  <input type="hidden" name="note" value=""/>';
+  document.body.appendChild(form); form.submit();
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  flatpickr("input[type=date]", {});
 </script>
 
 <%@ include file="../layout/footer.jsp" %>

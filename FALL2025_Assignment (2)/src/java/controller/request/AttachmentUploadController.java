@@ -46,6 +46,11 @@ public class AttachmentUploadController extends BaseRequiredAuthorizationControl
         }
         return "file";
     }
+
+    @Override
+    protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
 
 

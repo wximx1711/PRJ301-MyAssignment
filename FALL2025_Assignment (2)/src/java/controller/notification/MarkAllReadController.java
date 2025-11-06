@@ -18,6 +18,11 @@ public class MarkAllReadController extends BaseRequiredAuthorizationController {
         db.markAllRead(user.getUid());
         resp.sendRedirect(req.getHeader("Referer") != null ? req.getHeader("Referer") : (req.getContextPath()+"/notifications"));
     }
+
+    @Override
+    protected void processGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
 
 

@@ -19,6 +19,11 @@ public class OverviewController extends BaseRequiredAuthorizationController {
         req.setAttribute("summary", data);
         req.getRequestDispatcher("/view/report/overview.jsp").forward(req, resp);
     }
+
+    @Override
+    protected void processPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
 
 

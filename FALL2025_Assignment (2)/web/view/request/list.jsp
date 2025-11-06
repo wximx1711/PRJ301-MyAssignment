@@ -32,15 +32,15 @@
                         <option value="REJECTED" ${status == 'REJECTED' ? 'selected' : ''}>Đã từ chối</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                
                     <label class="form-label">Loại phép</label>
-                    <select class="form-select" name="typeId">
+                    
                         <option value="">-- Tất cả --</option>
                         <c:forEach items="${leaveTypes}" var="lt">
-                            <option value="${lt.id}" ${typeId == lt.id ? 'selected' : ''}>${lt.name}</option>
+                            <option value="${lt.id}" <c:if test="${typeId eq lt.id}">selected</c:if>>${lt.name}</option>
                         </c:forEach>
-                    </select>
-                </div>
+                    
+                
                 <div class="col-md-2 d-flex align-items-end">
                     <button class="btn btn-primary w-100"><i class="bi bi-filter"></i> Lọc</button>
                 </div>

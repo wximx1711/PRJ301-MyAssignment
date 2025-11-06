@@ -44,6 +44,11 @@ public class ExportCSVController extends BaseRequiredAuthorizationController {
     }
 
     private String safe(String v) { return v == null ? "" : '"' + v.replace("\"", "''") + '"'; }
+
+    @Override
+    protected void processPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
 
 

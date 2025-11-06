@@ -7,52 +7,21 @@ import model.RequestForLeave;
 
 public class RequestForLeaveDBContext extends DBContext {
 
-    // Lấy lịch làm việc cho phòng ban và khoảng thời gian
+    // Lấy lịch làm việc cho phòng ban và khoảng thời gian từ view chuẩn
     public List<Map<String, Object>> getAgenda(int did, Date from, Date to) {
-        String sql = """
-            WITH Dates AS (
-              SELECT ? AS d
-              UNION ALL SELECT DATEADD(DAY, 1, d) FROM Dates WHERE d < ?
-            ),
-            Emp AS ( 
-                SELECT eid, ename 
-                FROM Employee 
-                WHERE did = ?
-            ),
-            EmpDate AS ( 
-                SELECT e.eid, e.ename, d.d 
-                FROM Emp e 
-                CROSS JOIN Dates d 
-            ),
-            Marked AS (
-              SELECT ed.eid, ed.ename, ed.d,
-                     CASE WHEN EXISTS (
-                         SELECT 1 
-                         FROM RequestForLeave r 
-                         WHERE r.created_by = ed.eid 
-                           AND r.status = 1
-                           AND ed.d BETWEEN r.from_date AND r.to_date
-                     ) THEN 1 ELSE 0 END AS isLeave
-              FROM EmpDate ed
-            )
-            SELECT eid, ename, d, isLeave 
-            FROM Marked 
-            OPTION (MAXRECURSION 32767);
-        """;
-
+        String sql = "SELECT user_id, full_name, work_date FROM vw_Agenda WHERE work_date BETWEEN ? AND ? AND user_id IN (SELECT id FROM Users WHERE department_id = ?) ORDER BY full_name, work_date";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setDate(1, from);  // Ngày bắt đầu
-            ps.setDate(2, to);    // Ngày kết thúc
-            ps.setInt(3, did);    // ID phòng ban
-
+            ps.setDate(1, from);
+            ps.setDate(2, to);
+            ps.setInt(3, did);
             ResultSet rs = ps.executeQuery();
             List<Map<String, Object>> rows = new ArrayList<>();
             while (rs.next()) {
                 Map<String, Object> m = new HashMap<>();
-                m.put("eid", rs.getInt("eid"));
-                m.put("ename", rs.getString("ename"));
-                m.put("day", rs.getDate("d"));
-                m.put("isLeave", rs.getInt("isLeave"));
+                m.put("eid", rs.getInt("user_id"));
+                m.put("ename", rs.getString("full_name"));
+                m.put("day", rs.getDate("work_date"));
+                m.put("isLeave", 1);
                 rows.add(m);
             }
             return rows;
@@ -385,7 +354,7 @@ public class RequestForLeaveDBContext extends DBContext {
             ps.setString(3, filePath);
             ps.setInt(4, uploaderId);
             ps.executeUpdate();
-            insertAudit(uploaderId, "UPLOAD", "ATTACHMENT", rid, null, '{"file":"'+fileName+'"}');
+            insertAudit(uploaderId, "UPLOAD", "ATTACHMENT", rid, null, "{\"file\":\"" + fileName.replace("\"","'") + "\"}");
         } catch (SQLException e) {
             throw new RuntimeException("Error inserting attachment", e);
         }

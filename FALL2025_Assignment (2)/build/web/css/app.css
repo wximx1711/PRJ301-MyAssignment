@@ -1,79 +1,65 @@
 /* app.css */
 
-/* Nền và các phần tử toàn trang */
+/* Nền và typography toàn trang: đồng bộ với login (Inter + gradient) */
 body {
-    /* Use a font stack that supports Vietnamese characters well */
-    font-family: 'Segoe UI', 'Roboto', 'Noto Sans', 'Arial', sans-serif;
-    background-color: #f4f6f9; /* Nền sáng */
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Noto Sans', Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2f3 0%, #e6ebf2 40%, #dde7f7 100%);
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Navbar */
+/* Navbar: đồng bộ font + cải thiện độ tương phản, fix tiếng Việt */
 .navbar {
-    background-color: #4e73df; /* Màu chủ đạo */
     padding: 10px 20px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    /* Ensure navbar text uses the same font stack and renders Vietnamese correctly */
+    color: #fff;
+    backdrop-filter: saturate(180%) blur(8px);
+    -webkit-backdrop-filter: saturate(180%) blur(8px);
     font-family: inherit;
 }
 
-.navbar a {
-    color: white;
-    font-size: 16px;
-    text-decoration: none;
-    padding: 10px;
-    font-family: inherit;
+/* Giữ tông xanh Bootstrap nhưng tối hơn một chút để dễ đọc */
+.navbar.bg-primary {
+    background-color: #2f5bd4 !important;
 }
 
-.navbar a:hover {
-    background-color: #3e5abf;
-    border-radius: 5px;
+.navbar .nav-link,
+.navbar .navbar-brand {
+    color: #fff !important;
+    font-weight: 500;
 }
 
-/* Card cho các thông tin nhanh */
+.navbar .nav-link:hover,
+.navbar .navbar-brand:hover {
+    color: #e6eeff !important;
+}
+
+/* Card: glassmorphism nhẹ để đồng bộ với login */
 .card {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-/* Các KPI thông tin */
-.kpi {
-    font-size: 30px;
-    font-weight: bold;
-    color: #4e73df;
+/* Hero/section nhấn mạnh (nếu có) */
+.hero-section {
+    background: linear-gradient(90deg, rgba(47,91,212,0.10), rgba(66,133,244,0.08));
+    border-radius: 16px;
 }
 
-.kpi-title {
-    color: #6c757d;
-    font-size: 14px;
+/* Badge màu thân thiện với độ tương phản */
+.badge.bg-warning { color: #3b3b3b; }
+.badge.bg-success { color: #fff; }
+.badge.bg-danger  { color: #fff; }
+
+/* Bảng: cải thiện header cho dễ đọc trên nền sáng */
+table.table thead th {
+    background: #f3f6fc;
+    color: #334155;
 }
 
-/* Grid layout cho các phần thông tin */
-.product-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-/* Nút thêm vào giỏ */
-.add-to-cart-btn {
-    background-color: #ff6600;
-    padding: 12px 20px;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.add-to-cart-btn:hover {
-    background-color: #e65100;
-}
+/* Select2/Choices đồng bộ font */
+.select2-container .select2-selection--single,
+.choices__inner { font-family: inherit; }

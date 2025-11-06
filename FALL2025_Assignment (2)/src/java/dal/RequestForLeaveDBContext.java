@@ -52,8 +52,10 @@ public class RequestForLeaveDBContext extends DBContext {
     public void create(int uid, Date from, Date to, String reason) {
         // Insert trực tiếp theo schema mới
         // Chọn type_id mặc định là ANNUAL
-        String sql = "INSERT INTO Requests (employee_id, type_id, title, reason, start_date, end_date, status, created_by)\n" +
-                     "VALUES (?, (SELECT TOP 1 id FROM LeaveTypes WHERE code = N'ANNUAL'), N'Nghỉ phép', ?, ?, ?, N'INPROGRESS', ?)";
+        String sql = """
+            INSERT INTO Requests (employee_id, type_id, title, reason, start_date, end_date, status, created_by)
+            VALUES (?, (SELECT TOP 1 id FROM LeaveTypes WHERE code = N'ANNUAL'), N'Nghỉ phép', ?, ?, ?, N'INPROGRESS', ?)
+            """;
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, uid);
             ps.setString(2, reason);
@@ -118,12 +120,12 @@ public class RequestForLeaveDBContext extends DBContext {
 
     private int mapStatus(String statusText) {
         if (statusText == null) return 0;
-        switch (statusText) {
-            case "INPROGRESS": return 1;
-            case "APPROVED": return 2;
-            case "REJECTED": return 3;
-            default: return 0;
-        }
+        return switch (statusText) {
+            case "INPROGRESS" -> 1;
+            case "APPROVED" -> 2;
+            case "REJECTED" -> 3;
+            default -> 0;
+        };
     }
 
     public List<RequestForLeave> listMine(int myEid) {

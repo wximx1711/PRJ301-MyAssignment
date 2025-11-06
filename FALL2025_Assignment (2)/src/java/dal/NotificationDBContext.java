@@ -1,6 +1,5 @@
 package dal;
 
-import dal.DBContext;
 import model.Notification;
 import java.sql.*;
 import java.util.ArrayList;

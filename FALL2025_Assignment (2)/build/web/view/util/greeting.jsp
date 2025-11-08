@@ -188,8 +188,8 @@
                 </div>
             </div>
         </c:if>
-    </div>
-
+            </div>
+            
     <!-- Quick Actions Section -->
     <div class="row g-4">
         <!-- Left Column: Quick Actions -->

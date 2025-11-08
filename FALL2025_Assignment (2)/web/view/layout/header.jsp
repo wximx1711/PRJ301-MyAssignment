@@ -49,7 +49,20 @@
 </head>
 <body>
     <style>
-      body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      /* Đảm bảo Inter font được load và áp dụng cho toàn bộ, fix encoding tiếng Việt */
+      body, html {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+      
+      /* Fix font cho navbar và tất cả elements */
+      .navbar, .navbar *, .nav-link, .navbar-brand, .dropdown-menu, .dropdown-item {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+      }
     </style>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">

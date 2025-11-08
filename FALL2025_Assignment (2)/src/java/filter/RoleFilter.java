@@ -3,7 +3,7 @@ package filter;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import model.User;
+import model.iam.User;
 
 public class RoleFilter implements Filter {
     @Override

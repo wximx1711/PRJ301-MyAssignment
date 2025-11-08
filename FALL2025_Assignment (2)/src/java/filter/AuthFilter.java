@@ -3,8 +3,8 @@ package filter;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import model.User;
-import model.Role;
+import model.iam.User;
+import model.iam.Role;
 
 public class AuthFilter implements Filter {
     @Override

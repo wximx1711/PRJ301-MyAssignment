@@ -8,13 +8,17 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><c:if test="${not empty pageTitle}">${pageTitle} - </c:if>EzLeave</title>
     
+    <!-- Google Fonts (Inter) - Load first for better font rendering -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts (Inter) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- DataTables CSS -->
@@ -50,13 +54,21 @@
 <body>
     <style>
       /* Đảm bảo Inter font được load và áp dụng cho toàn bộ, fix encoding tiếng Việt */
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400 800;
+        font-display: swap;
+        src: url('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+        unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+      }
       
       body, html {
         font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
+        font-feature-settings: "liga" 1, "kern" 1;
       }
       
       /* Navbar gradient giống login - override Bootstrap mạnh */
@@ -70,7 +82,7 @@
         border: none !important;
       }
       
-      /* Fix font cho navbar và tất cả elements - override mạnh */
+      /* Fix font cho navbar và tất cả elements - override mạnh với UTF-8 support */
       .navbar,
       .navbar *,
       .nav-link,
@@ -79,20 +91,27 @@
       .dropdown-item,
       .navbar-nav,
       .navbar-nav *,
-      nav.navbar * {
+      nav.navbar *,
+      nav.navbar .nav-link,
+      nav.navbar .navbar-brand,
+      nav.navbar .btn {
         font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         font-weight: 500 !important;
         letter-spacing: 0.01em !important;
         text-rendering: optimizeLegibility !important;
         -webkit-font-smoothing: antialiased !important;
         -moz-osx-font-smoothing: grayscale !important;
+        font-feature-settings: "liga" 1, "kern" 1 !important;
+        unicode-bidi: embed !important;
       }
       
       /* Đảm bảo text trong navbar hiển thị đúng UTF-8 */
       .navbar .nav-link,
-      .navbar .navbar-brand {
+      .navbar .navbar-brand,
+      .navbar .btn {
         color: #fff !important;
         text-decoration: none !important;
+        font-variant-ligatures: common-ligatures;
       }
       
       .navbar .nav-link:hover,
@@ -102,101 +121,11 @@
         border-radius: 8px !important;
         transition: all 0.3s ease !important;
       }
-      
-      /* Buttons trong navbar */
-      .navbar .btn {
-        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        font-weight: 500 !important;
-      }
     </style>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="${pageContext.request.contextPath}/home">
-                <i class="bi bi-calendar-check"></i> EzLeave
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/home">
-                            <i class="bi bi-house"></i> Trang chủ
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/dashboard">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/request/list">
-                            <i class="bi bi-list-ul"></i> Đơn nghỉ phép
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/request/create">
-                            <i class="bi bi-plus-circle"></i> Tạo đơn
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/balance">
-                            <i class="bi bi-wallet2"></i> Số dư phép
-                        </a>
-                    </li>
-                    <c:if test="${user.role.code eq 'MANAGER' or user.role.code eq 'LEADER' or user.role.code eq 'ADMIN'}">
-                        <li class="nav-item">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/request/review">
-                                <i class="bi bi-check-circle"></i> Duyệt đơn
-                            </a>
-                        </li>
-                    </c:if>
-                    <c:if test="${user.role.code eq 'ADMIN'}">
-                        <li class="nav-item">
-                            <a class="nav-link" href="${pageContext.request.contextPath}/reports">
-                                <i class="bi bi-graph-up"></i> Báo cáo
-                            </a>
-                        </li>
-                    </c:if>
-                </ul>
-                <ul class="navbar-nav">
-                    <c:if test="${user.role.code eq 'ADMIN'}">
-                        <li class="nav-item d-flex align-items-center me-2">
-                            <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/iam/password-requests" title="Service: Password resets">
-                                <i class="bi bi-gear"></i> Service
-                            </a>
-                        </li>
-                        <li class="nav-item d-flex align-items-center me-2">
-                            <a class="btn btn-warning btn-sm" href="${pageContext.request.contextPath}/admin/users/create">
-                                <i class="bi bi-person-plus"></i> Tạo user
-                            </a>
-                        </li>
-                    </c:if>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-bell"></i>
-                            <span id="notificationBadge" class="badge bg-danger d-none">0</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" id="notificationDropdownMenu">
-                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/notifications">Xem tất cả thông báo</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> ${user.displayname}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/profile">Hồ sơ</a></li>
-                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/settings">Cài đặt</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Đăng xuất</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <!-- Navbar hidden - moved to bottom navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="display: none !important;">
     </nav>
     
-    <main class="container-fluid mt-4">
-        <div class="row">
+    <main class="container-fluid p-0">
+        <div class="row g-0">
             <div class="col-12">

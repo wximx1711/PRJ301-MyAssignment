@@ -49,10 +49,10 @@
         </div>
         <div class="row g-2">
           <div class="col-12 col-md-6">
-            <a href="${pageContext.request.contextPath}/request/create" class="btn btn-primary w-100 p-3"><i class="bi bi-plus-circle me-2"></i>Tạo đơn nghỉ phép</a>
+            <a href="${pageContext.request.contextPath}/request/create" class="btn btn-primary w-100 p-3" style="background: linear-gradient(135deg, #ff6600 0%, #e65100 100%); border: none; box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);"><i class="bi bi-plus-circle me-2"></i>Tạo đơn nghỉ phép</a>
           </div>
           <div class="col-12 col-md-6">
-            <a href="${pageContext.request.contextPath}/request/list" class="btn btn-outline-primary w-100 p-3"><i class="bi bi-list-ul me-2"></i>Danh sách đơn</a>
+            <a href="${pageContext.request.contextPath}/request/list" class="btn btn-outline-primary w-100 p-3" style="border-color: #ff6600; color: #ff6600;"><i class="bi bi-list-ul me-2"></i>Danh sách đơn</a>
           </div>
           <c:if test="${user.role.code eq 'MANAGER' or user.role.code eq 'LEADER' or user.role.code eq 'ADMIN'}">
             <div class="col-12">
@@ -204,13 +204,13 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <a href="${pageContext.request.contextPath}/request/create" class="btn btn-primary w-100 p-3 d-flex align-items-center justify-content-center">
+                            <a href="${pageContext.request.contextPath}/request/create" class="btn btn-primary w-100 p-3 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #ff6600 0%, #e65100 100%); border: none; box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);">
                                 <i class="bi bi-plus-circle-fill fs-4 me-2"></i>
                                 <span>Tạo đơn nghỉ phép</span>
                             </a>
                         </div>
                         <div class="col-md-6">
-                            <a href="${pageContext.request.contextPath}/request/list" class="btn btn-outline-primary w-100 p-3 d-flex align-items-center justify-content-center">
+                            <a href="${pageContext.request.contextPath}/request/list" class="btn btn-outline-primary w-100 p-3 d-flex align-items-center justify-content-center" style="border-color: #ff6600; color: #ff6600;">
                                 <i class="bi bi-list-ul fs-4 me-2"></i>
                                 <span>Xem danh sách đơn</span>
                             </a>
@@ -318,18 +318,102 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    /* Hero styles to match login */
-    /* Softer, readable hero background with gradient instead of photo */
-    .home-hero{position:relative;min-height:56vh;background:linear-gradient(135deg,#667eea 0%, #764ba2 60%, #3f3d56 100%);display:flex;align-items:center}
-    .home-hero__overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.1) 100%)}
-    .home-hero__wrap{position:relative;z-index:1;width:100%;padding:40px 20px;display:flex;justify-content:center}
-    .home-hero__content{max-width:1200px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-    .glass-card{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
-    .welcome-title{font-size:3.5rem;font-weight:800;line-height:1.1;margin-bottom:10px}
-    .welcome-desc{color:rgba(255,255,255,.9);max-width:520px}
-    .mini-stat{display:flex;gap:12px;align-items:center;border-radius:14px;padding:12px 14px}
-    .mini-icon{font-size:1.5rem}
-    @media (max-width: 992px){.home-hero__content{grid-template-columns:1fr;gap:30px}}
+    /* Hero styles to match login - đồng bộ hoàn toàn */
+    .home-hero {
+        position: relative;
+        min-height: 56vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
+    .home-hero__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.1) 100%);
+    }
+    .home-hero__wrap {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        padding: 40px 20px;
+        display: flex;
+        justify-content: center;
+    }
+    .home-hero__content {
+        max-width: 1200px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+    .glass-card {
+        background: rgba(255,255,255,.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 10px 40px rgba(0,0,0,.2);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .welcome-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 10px;
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        color: #fff;
+    }
+    .welcome-desc {
+        color: rgba(255,255,255,.9);
+        max-width: 520px;
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    .mini-stat {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+    .mini-icon {
+        font-size: 1.5rem;
+    }
+    
+    /* Buttons trong glass-card - gradient cam giống login */
+    .glass-card .btn-primary {
+        background: linear-gradient(135deg, #ff6600 0%, #e65100 100%) !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3) !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+    .glass-card .btn-primary:hover {
+        background: linear-gradient(135deg, #e65100 0%, #cc4400 100%) !important;
+        box-shadow: 0 6px 20px rgba(255, 102, 0, 0.4) !important;
+        transform: translateY(-2px) !important;
+    }
+    .glass-card .btn-outline-primary {
+        border-color: #ff6600 !important;
+        color: #ff6600 !important;
+        background: transparent !important;
+    }
+    .glass-card .btn-outline-primary:hover {
+        background-color: #ff6600 !important;
+        border-color: #ff6600 !important;
+        color: #fff !important;
+    }
+    
+    @media (max-width: 992px) {
+        .home-hero__content {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+    }
 </style>
 
 <script>

@@ -50,6 +50,8 @@
 <body>
     <style>
       /* Đảm bảo Inter font được load và áp dụng cho toàn bộ, fix encoding tiếng Việt */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      
       body, html {
         font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         -webkit-font-smoothing: antialiased;
@@ -57,11 +59,54 @@
         text-rendering: optimizeLegibility;
       }
       
-      /* Fix font cho navbar và tất cả elements */
-      .navbar, .navbar *, .nav-link, .navbar-brand, .dropdown-menu, .dropdown-item {
+      /* Navbar gradient giống login - override Bootstrap mạnh */
+      .navbar.bg-primary,
+      nav.navbar.navbar-expand-lg.navbar-dark.bg-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        background-color: transparent !important;
+        backdrop-filter: saturate(180%) blur(10px) !important;
+        -webkit-backdrop-filter: saturate(180%) blur(10px) !important;
+        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+        border: none !important;
+      }
+      
+      /* Fix font cho navbar và tất cả elements - override mạnh */
+      .navbar,
+      .navbar *,
+      .nav-link,
+      .navbar-brand,
+      .dropdown-menu,
+      .dropdown-item,
+      .navbar-nav,
+      .navbar-nav *,
+      nav.navbar * {
         font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-        font-weight: 500;
-        letter-spacing: 0.01em;
+        font-weight: 500 !important;
+        letter-spacing: 0.01em !important;
+        text-rendering: optimizeLegibility !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+      }
+      
+      /* Đảm bảo text trong navbar hiển thị đúng UTF-8 */
+      .navbar .nav-link,
+      .navbar .navbar-brand {
+        color: #fff !important;
+        text-decoration: none !important;
+      }
+      
+      .navbar .nav-link:hover,
+      .navbar .navbar-brand:hover {
+        color: rgba(255, 255, 255, 0.9) !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease !important;
+      }
+      
+      /* Buttons trong navbar */
+      .navbar .btn {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        font-weight: 500 !important;
       }
     </style>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">

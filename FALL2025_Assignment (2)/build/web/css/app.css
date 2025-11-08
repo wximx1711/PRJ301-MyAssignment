@@ -21,21 +21,22 @@ i, .bi, [class^="bi-"], [class*=" bi-"] {
     font-family: 'Bootstrap Icons' !important;
 }
 
-/* Navbar: đồng bộ màu gradient giống login + fix font Inter cho tiếng Việt */
-.navbar {
-    padding: 12px 20px;
-    color: #fff;
+/* Navbar: đồng bộ màu gradient giống login + fix font Inter cho tiếng Việt - override Bootstrap mạnh */
+.navbar,
+.navbar.bg-primary,
+nav.navbar.navbar-expand-lg.navbar-dark.bg-primary,
+.navbar.navbar-expand-lg.navbar-dark.bg-primary {
+    padding: 12px 20px !important;
+    color: #fff !important;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    backdrop-filter: saturate(180%) blur(10px);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    background-color: transparent !important;
+    backdrop-filter: saturate(180%) blur(10px) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(10px) !important;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+    border: none !important;
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-}
-
-.navbar.bg-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
 }
 
 .navbar .nav-link,

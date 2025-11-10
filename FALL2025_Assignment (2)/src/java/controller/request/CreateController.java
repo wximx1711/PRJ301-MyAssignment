@@ -50,9 +50,32 @@ public class CreateController extends BaseRequiredAuthorizationController {
                 return;
             }
 
-            // Create leave request
-            new RequestForLeaveDBContext().create(user.getUid(), from, to, reason);
-            resp.sendRedirect(req.getContextPath() + "/request/list");
+            // Create leave request and return generated id
+            RequestForLeaveDBContext db = new RequestForLeaveDBContext();
+            int newRid = db.create(user.getUid(), from, to, reason);
+
+            // Notify all admins so they can review immediately
+            try {
+                dal.UserDBContext udb = new dal.UserDBContext();
+                dal.NotificationDBContext ndb = new dal.NotificationDBContext();
+                java.util.List<Integer> admins = udb.listAdmins();
+                String title = "Đơn nghỉ phép mới";
+                String message = user.getFullName() + " vừa tạo đơn (ID: " + newRid + ") cần duyệt";
+                for (Integer aid : admins) {
+                    try { ndb.createNotification(aid, "IN_APP", title, message, "REQUEST", newRid); } catch (Exception ignore) {}
+                }
+            } catch (Exception ex) {
+                // non-fatal: notifications failure shouldn't block create flow
+            }
+
+            // If the creator is ADMIN keep redirect to request list; otherwise redirect to list with focus so admins can review
+            String roleCode = user.getRole() != null ? user.getRole().getCode() : "";
+            if ("ADMIN".equalsIgnoreCase(roleCode)) {
+                resp.sendRedirect(req.getContextPath() + "/request/list");
+            } else {
+                // redirect to list with a focus param (admins will see notification and can open review)
+                resp.sendRedirect(req.getContextPath() + "/request/list?focus=" + newRid);
+            }
         } catch (IllegalArgumentException e) {
             req.setAttribute("msg", e.getMessage());
             req.getRequestDispatcher("/view/request/create.jsp").forward(req, resp);

@@ -194,6 +194,17 @@ public class UserDBContext extends DBContext {
         return list;
     }
 
+    public java.util.List<Integer> listAdmins() {
+        java.util.List<Integer> res = new java.util.ArrayList<>();
+        String sql = "SELECT u.id FROM Users u JOIN Roles r ON r.id=u.role_id WHERE r.code = 'ADMIN' AND u.is_active = 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                res.add(rs.getInt("id"));
+            }
+        } catch (SQLException e) { throw new RuntimeException("Error loading admins", e); }
+        return res;
+    }
+
     public void createUser(String username, String password, String fullName, int roleId, int deptId, Integer managerId, boolean active) {
         if (username == null || username.isBlank() || password == null || password.isBlank() || fullName == null || fullName.isBlank()) {
             throw new IllegalArgumentException("Thiếu thông tin bắt buộc");

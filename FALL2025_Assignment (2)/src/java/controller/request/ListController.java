@@ -44,11 +44,22 @@ public class ListController extends BaseRequiredAuthorizationController {
         try { String p2 = req.getParameter("pageSubs"); if (p2 != null) pageSubs = Integer.parseInt(p2); } catch (Exception e) { pageSubs = 1; }
         try { String s2 = req.getParameter("sizeSubs"); if (s2 != null) sizeSubs = Integer.parseInt(s2); } catch (Exception e) { sizeSubs = 10; }
         int offsetSubs = (pageSubs - 1) * sizeSubs;
-        int totalSubs = (status!=null || typeId!=null || from!=null || to!=null) ? db.countSubordinatesFiltered(myEid, from, to, status, typeId) : db.countSubordinates(myEid);
-        int totalPagesSubs = (totalSubs + sizeSubs - 1) / sizeSubs;
+    int totalSubs;
+    int totalPagesSubs;
+    if (user.getRole() != null && "ADMIN".equals(user.getRole().getCode())) {
+        // Admin sees all requests
+        totalSubs = (status!=null || typeId!=null || from!=null || to!=null) ? db.countAllFiltered(from, to, status, typeId) : db.countAllRequests();
+        totalPagesSubs = (totalSubs + sizeSubs - 1) / sizeSubs;
         req.setAttribute("subs", (status!=null || typeId!=null || from!=null || to!=null)
-                ? db.listOfSubordinatesPageFiltered(myEid, from, to, status, typeId, offsetSubs, sizeSubs)
-                : db.listOfSubordinatesPage(myEid, offsetSubs, sizeSubs));
+            ? db.listAllPageFiltered(from, to, status, typeId, offsetSubs, sizeSubs)
+            : db.listAllPage(offsetSubs, sizeSubs));
+    } else {
+        totalSubs = (status!=null || typeId!=null || from!=null || to!=null) ? db.countSubordinatesFiltered(myEid, from, to, status, typeId) : db.countSubordinates(myEid);
+        totalPagesSubs = (totalSubs + sizeSubs - 1) / sizeSubs;
+        req.setAttribute("subs", (status!=null || typeId!=null || from!=null || to!=null)
+            ? db.listOfSubordinatesPageFiltered(myEid, from, to, status, typeId, offsetSubs, sizeSubs)
+            : db.listOfSubordinatesPage(myEid, offsetSubs, sizeSubs));
+    }
         req.setAttribute("pageSubs", pageSubs);
         req.setAttribute("sizeSubs", sizeSubs);
         req.setAttribute("totalPagesSubs", totalPagesSubs);

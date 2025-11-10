@@ -49,7 +49,7 @@ public class RequestForLeaveDBContext extends DBContext {
         }
     }
 
-    public void create(int uid, Date from, Date to, String reason) {
+    public int create(int uid, Date from, Date to, String reason) {
         // Insert trực tiếp theo schema mới
         // Chọn type_id mặc định là ANNUAL
         String sql = """
@@ -66,9 +66,106 @@ public class RequestForLeaveDBContext extends DBContext {
             int rid = 0; try (ResultSet g = ps.getGeneratedKeys()) { if (g.next()) rid = g.getInt(1); }
             insertAudit(uid, "CREATE", "REQUEST", rid, null,
                     "{\"from\":\""+from+"\",\"to\":\""+to+"\"}");
+            return rid;
         } catch (SQLException ex) {
             throw new RuntimeException("Error creating leave request", ex);
         }
+    }
+
+    // Admin: list all requests with paging
+    public List<RequestForLeave> listAllPage(int offset, int pageSize) {
+        String sql = """
+            SELECT r.id AS rid, r.employee_id, r.title, r.reason, r.start_date AS from_date, r.end_date AS to_date,
+                   r.status, r.created_at AS created_time, r.created_by, r.processed_by,
+                   u.full_name as created_by_name, p.full_name as processed_by_name
+            FROM Requests r
+            JOIN Users u ON u.id = r.created_by
+            LEFT JOIN Users p ON p.id = r.processed_by
+            ORDER BY r.created_at DESC
+            OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+        """;
+        List<RequestForLeave> requests = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, offset);
+            ps.setInt(2, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RequestForLeave r = new RequestForLeave();
+                r.setRid(rs.getInt("rid"));
+                r.setCreatedBy(rs.getInt("created_by"));
+                r.setCreatedTime(rs.getTimestamp("created_time"));
+                r.setFromDate(rs.getDate("from_date"));
+                r.setToDate(rs.getDate("to_date"));
+                r.setReason(rs.getString("reason"));
+                r.setStatus(mapStatus(rs.getString("status")));
+                r.setProcessedBy(rs.getInt("processed_by"));
+                r.setCreatedByName(rs.getString("created_by_name"));
+                r.setProcessedByName(rs.getString("processed_by_name"));
+                requests.add(r);
+            }
+            return requests;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error retrieving all requests (paged)", ex);
+        }
+    }
+
+    public List<RequestForLeave> listAllPageFiltered(java.sql.Date from, java.sql.Date to, String statusText, Integer typeId, int offset, int pageSize) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT r.id AS rid, r.employee_id, r.title, r.reason, r.start_date AS from_date, r.end_date AS to_date, ");
+        sb.append("r.status, r.created_at AS created_time, r.created_by, r.processed_by, u.full_name as created_by_name, p.full_name as processed_by_name ");
+        sb.append("FROM Requests r JOIN Users u ON u.id = r.created_by LEFT JOIN Users p ON p.id = r.processed_by WHERE 1=1 ");
+        if (from != null) sb.append("AND r.start_date >= ? ");
+        if (to != null) sb.append("AND r.end_date <= ? ");
+        if (statusText != null && !statusText.isBlank()) sb.append("AND r.status = ? ");
+        if (typeId != null) sb.append("AND r.type_id = ? ");
+        sb.append("ORDER BY r.created_at DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+
+        List<RequestForLeave> list = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(sb.toString())) {
+            int idx = 1;
+            if (from != null) ps.setDate(idx++, from);
+            if (to != null) ps.setDate(idx++, to);
+            if (statusText != null && !statusText.isBlank()) ps.setString(idx++, statusText);
+            if (typeId != null) ps.setInt(idx++, typeId);
+            ps.setInt(idx++, offset);
+            ps.setInt(idx++, pageSize);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                RequestForLeave r = new RequestForLeave();
+                r.setRid(rs.getInt("rid"));
+                r.setCreatedBy(rs.getInt("created_by"));
+                r.setCreatedTime(rs.getTimestamp("created_time"));
+                r.setFromDate(rs.getDate("from_date"));
+                r.setToDate(rs.getDate("to_date"));
+                r.setReason(rs.getString("reason"));
+                r.setStatus(mapStatus(rs.getString("status")));
+                r.setProcessedBy(rs.getInt("processed_by"));
+                r.setCreatedByName(rs.getString("created_by_name"));
+                r.setProcessedByName(rs.getString("processed_by_name"));
+                list.add(r);
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error retrieving filtered all requests", ex);
+        }
+        return list;
+    }
+
+    public int countAllFiltered(java.sql.Date from, java.sql.Date to, String statusText, Integer typeId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(*) as cnt FROM Requests r WHERE 1=1 ");
+        if (from != null) sb.append("AND r.start_date >= ? ");
+        if (to != null) sb.append("AND r.end_date <= ? ");
+        if (statusText != null && !statusText.isBlank()) sb.append("AND r.status = ? ");
+        if (typeId != null) sb.append("AND r.type_id = ? ");
+        try (PreparedStatement ps = connection.prepareStatement(sb.toString())) {
+            int idx = 1;
+            if (from != null) ps.setDate(idx++, from);
+            if (to != null) ps.setDate(idx++, to);
+            if (statusText != null && !statusText.isBlank()) ps.setString(idx++, statusText);
+            if (typeId != null) ps.setInt(idx++, typeId);
+            try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return rs.getInt("cnt"); }
+            return 0;
+        } catch (SQLException ex) { throw new RuntimeException("Error counting filtered all requests", ex); }
     }
 
     private void insertAudit(Integer userId, String action, String entityType, Integer entityId, String oldValues, String newValues) {
@@ -525,17 +622,18 @@ public class RequestForLeaveDBContext extends DBContext {
         return 0;
     }
     
-    public int countAllRequests() throws SQLException {
+    public int countAllRequests() {
         String sql = "SELECT COUNT(*) as count FROM Requests";
-        
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("count");
                 }
             }
+            return 0;
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error counting all requests", ex);
         }
-        return 0;
     }
     
     public int countPendingRequests() throws SQLException {

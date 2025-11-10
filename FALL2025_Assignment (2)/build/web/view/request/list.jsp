@@ -87,7 +87,7 @@
               </thead>
               <tbody>
                 <c:forEach items="${mine}" var="r">
-                  <tr>
+                  <tr id="mine-request-${r.rid}">
                     <td>${r.rid}</td>
                     <td><c:out value="${empty r.reason ? 'Nghỉ phép' : r.reason}"/></td>
                     <td>${r.reason}</td>
@@ -171,7 +171,7 @@
                 </thead>
                 <tbody>
                   <c:forEach items="${subs}" var="r">
-                    <tr>
+                    <tr id="subs-request-${r.rid}">
                       <td>${r.rid}</td>
                       <td><c:out value="${empty r.createdByName ? 'N/A' : r.createdByName}"/></td>
                       <td><c:out value="${empty r.reason ? 'Nghỉ phép' : r.reason}"/></td>
@@ -281,5 +281,34 @@ function submitApprove(rid,status){
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>flatpickr("input[type=date]", {});</script>
+
+<script>
+  // If ?focus=<rid> is present, open the appropriate tab and highlight the request row
+  (function(){
+    try{
+      const params = new URLSearchParams(window.location.search);
+      const focus = params.get('focus');
+      if(!focus) return;
+      const subsTabBtn = document.getElementById('subs-tab');
+      const mineTabBtn = document.getElementById('mine-tab');
+      // Look for the row in subs table first, then mine table
+  const subsRow = document.querySelector('#subsRequestsTable tbody tr#subs-request-' + focus);
+  const mineRow = document.querySelector('#myRequestsTable tbody tr#mine-request-' + focus);
+  const targetRow = subsRow || mineRow;
+      if(!targetRow) return;
+      // Show the correct tab
+      if (subsRow && subsTabBtn && typeof bootstrap !== 'undefined') {
+        new bootstrap.Tab(subsTabBtn).show();
+      } else if (mineRow && mineTabBtn && typeof bootstrap !== 'undefined') {
+        new bootstrap.Tab(mineTabBtn).show();
+      }
+      // Highlight and scroll into view
+      targetRow.classList.add('table-warning');
+      targetRow.scrollIntoView({behavior: 'smooth', block: 'center'});
+      // Remove highlight after a few seconds
+      setTimeout(()=>{ targetRow.classList.remove('table-warning'); }, 6000);
+    }catch(e){ console.error('focus highlight error', e); }
+  })();
+</script>
 
 <%@ include file="../layout/footer.jsp" %>

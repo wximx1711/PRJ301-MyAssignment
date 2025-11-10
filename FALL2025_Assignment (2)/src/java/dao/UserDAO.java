@@ -120,6 +120,114 @@ public class UserDAO {
             ps.executeUpdate();
         }
     }
+
+    // Get user by email stored in UserSettings.email
+    public User getByEmail(String email) throws SQLException {
+        String sql = "SELECT u.*, r.code as role_code, r.name as role_name, d.name as department_name " +
+                    "FROM Users u " +
+                    "JOIN Roles r ON r.id = u.role_id " +
+                    "JOIN Departments d ON d.id = u.department_id " +
+                    "JOIN UserSettings s ON s.user_id = u.id " +
+                    "WHERE s.email = ? AND u.is_active = 1";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapUser(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    // Create a new user (Employee role, default department) from Google sign-in
+    // Returns the created User object
+    public User createUserFromGoogle(String email, String fullName) throws SQLException {
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            // find EMPLOYEE role id
+            int roleId = -1;
+            String qRole = "SELECT id FROM Roles WHERE code = 'EMPLOYEE'";
+            try (PreparedStatement prs = conn.prepareStatement(qRole);
+                 ResultSet rsr = prs.executeQuery()) {
+                if (rsr.next()) {
+                    roleId = rsr.getInt("id");
+                }
+            }
+
+            // find default department (IT) or fallback to first department
+            int deptId = -1;
+            String qDept = "SELECT id FROM Departments WHERE name = 'IT'";
+            try (PreparedStatement pds = conn.prepareStatement(qDept);
+                 ResultSet rsd = pds.executeQuery()) {
+                if (rsd.next()) {
+                    deptId = rsd.getInt("id");
+                }
+            }
+            if (deptId == -1) {
+                String qDept2 = "SELECT TOP 1 id FROM Departments";
+                try (PreparedStatement pds2 = conn.prepareStatement(qDept2);
+                     ResultSet rsd2 = pds2.executeQuery()) {
+                    if (rsd2.next()) deptId = rsd2.getInt("id");
+                }
+            }
+
+            // create username from email local part and ensure uniqueness
+            String username = email.split("@")[0];
+            String checkUserSql = "SELECT COUNT(*) cnt FROM Users WHERE username = ?";
+            try (PreparedStatement psCheck = conn.prepareStatement(checkUserSql)) {
+                int suffix = 0;
+                String candidate;
+                while (true) {
+                    candidate = username + (suffix == 0 ? "" : String.valueOf(suffix));
+                    psCheck.setString(1, candidate);
+                    try (ResultSet r = psCheck.executeQuery()) {
+                        if (r.next() && r.getInt("cnt") == 0) {
+                            username = candidate;
+                            break;
+                        }
+                    }
+                    suffix++;
+                }
+            }
+
+            String insertUser = "INSERT INTO Users(username,password_hash,full_name,role_id,department_id,manager_id) " +
+                                "VALUES (?, ?, ?, ?, ?, NULL)";
+            try (PreparedStatement psIns = conn.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS)) {
+                psIns.setString(1, username);
+                psIns.setString(2, "GOOGLE_OAUTH"); // placeholder password hash
+                psIns.setString(3, fullName != null ? fullName : username);
+                psIns.setInt(4, roleId == -1 ? 1 : roleId);
+                psIns.setInt(5, deptId == -1 ? 1 : deptId);
+                psIns.executeUpdate();
+
+                try (ResultSet gk = psIns.getGeneratedKeys()) {
+                    if (gk.next()) {
+                        int newId = gk.getInt(1);
+
+                        // insert into UserSettings
+                        String insSetting = "INSERT INTO UserSettings(user_id, email, phone, email_notifications, sms_notifications, in_app_notifications) " +
+                                            "VALUES (?, ?, NULL, 1, 0, 1)";
+                        try (PreparedStatement psSet = conn.prepareStatement(insSetting)) {
+                            psSet.setInt(1, newId);
+                            psSet.setString(2, email);
+                            psSet.executeUpdate();
+                        }
+
+                        conn.commit();
+                        return getById(newId);
+                    }
+                }
+            }
+            conn.rollback();
+        }
+        return null;
+    }
     
     private User mapUser(ResultSet rs) throws SQLException {
         User user = new User();

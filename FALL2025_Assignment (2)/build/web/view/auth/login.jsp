@@ -428,6 +428,17 @@
                         <button type="submit" class="btn-submit">
                             <i class="bi bi-box-arrow-in-right"></i> Đăng nhập ngay
                         </button>
+
+                        <div style="text-align:center; margin: 15px 0;">
+                            <span style="color:#888; font-size:0.9rem;">hoặc</span>
+                        </div>
+
+                        <div style="display:flex; gap:10px;">
+                            <a href="<%=request.getContextPath()%>/auth/google" class="btn btn-outline-secondary" style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:10px;">
+                                <i class="bi bi-google" style="font-size:1.2rem; color:#db4437;"></i>
+                                <span style="font-weight:600; color:#333;">Đăng nhập bằng Google</span>
+                            </a>
+                        </div>
                         
                         <div class="forgot-password">
                             <a href="<%=request.getContextPath()%>/auth/forgot">Quên mật khẩu?</a>

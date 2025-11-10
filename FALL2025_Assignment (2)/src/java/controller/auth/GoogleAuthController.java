@@ -34,13 +34,15 @@ public class GoogleAuthController extends HttpServlet {
         if (path.equals("/auth/google")) {
             // Redirect user to Google consent screen
             String state = "google_auth"; // for CSRF protection in production, generate and store per-session
-            String authUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
-                    "?client_id=" + CLIENT_ID +
-                    "&response_type=code" +
-                    "&scope=openid%20email%20profile" +
-                    "&redirect_uri=" + req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + "/auth/google/callback" +
-                    "&state=" + state;
-            resp.sendRedirect(authUrl);
+        String authUrl = "https://accounts.google.com/o/oauth2/v2/auth" +
+            "?client_id=" + CLIENT_ID +
+            "&response_type=code" +
+            "&scope=openid%20email%20profile" +
+            "&redirect_uri=" + req.getScheme() + "://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + "/auth/google/callback" +
+            "&state=" + state;
+        // Debug: print the full auth URL (useful to inspect redirect_uri and client_id)
+        System.out.println("[GoogleAuth] Redirecting to Google auth URL: " + authUrl);
+        resp.sendRedirect(authUrl);
             return;
         }
 
@@ -48,6 +50,8 @@ public class GoogleAuthController extends HttpServlet {
             // Handle callback from Google
             String code = req.getParameter("code");
             String error = req.getParameter("error");
+            // Debug: log callback params
+            System.out.println("[GoogleAuth] Callback received. code=" + code + ", error=" + error);
             if (error != null) {
                 req.setAttribute("error", "Google sign-in cancelled or failed: " + error);
                 req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);
@@ -81,8 +85,12 @@ public class GoogleAuthController extends HttpServlet {
                 }
 
                 int codeResp = conn.getResponseCode();
+                System.out.println("[GoogleAuth] Token endpoint response code: " + codeResp);
                 if (codeResp != 200) {
-                    req.setAttribute("error", "Google token exchange failed: HTTP " + codeResp);
+                    java.io.InputStream es = conn.getErrorStream();
+                    String errBody = es != null ? new String(es.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8) : "";
+                    System.out.println("[GoogleAuth] Token endpoint error body: " + errBody);
+                    req.setAttribute("error", "Google token exchange failed: HTTP " + codeResp + " - " + errBody);
                     req.getRequestDispatcher("/view/auth/login.jsp").forward(req, resp);
                     return;
                 }

@@ -245,7 +245,12 @@
 <script>
 function cancelRequest(requestId) {
   if (confirm('Bạn có chắc chắn muốn hủy đơn này?')) {
-    alert('Tính năng đang phát triển');
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '${pageContext.request.contextPath}/request/cancel';
+    form.innerHTML = '<input type="hidden" name="rid" value="' + requestId + '"/>';
+    document.body.appendChild(form);
+    form.submit();
   }
 }
 function viewDetails(requestId) {

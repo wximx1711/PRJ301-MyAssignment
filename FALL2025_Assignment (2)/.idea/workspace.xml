@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0c605b26-7779-4519-90b1-ee9428c57867" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ACCOUNTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/ACCOUNTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATABASE_SETUP.md" beforeDir="false" afterPath="$PROJECT_DIR$/DATABASE_SETUP.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FEATURES.md" beforeDir="false" afterPath="$PROJECT_DIR$/FEATURES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NETBEANS_QUICK_START.md" beforeDir="false" afterPath="$PROJECT_DIR$/NETBEANS_QUICK_START.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NETBEANS_SETUP.md" beforeDir="false" afterPath="$PROJECT_DIR$/NETBEANS_SETUP.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QUICK_FIX.md" beforeDir="false" afterPath="$PROJECT_DIR$/QUICK_FIX.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QUYEN_HAN_VA_HOAT_DONG.md" beforeDir="false" afterPath="$PROJECT_DIR$/QUYEN_HAN_VA_HOAT_DONG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SETUP_INSTRUCTIONS.md" beforeDir="false" afterPath="$PROJECT_DIR$/SETUP_INSTRUCTIONS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TEST_PLAN.md" beforeDir="false" afterPath="$PROJECT_DIR$/TEST_PLAN.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TROUBLESHOOTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/TROUBLESHOOTING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.xml" beforeDir="false" afterPath="$PROJECT_DIR$/build.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/index.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/admin/user/create.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/admin/user/create.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/admin/user/list.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/admin/user/list.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/auth/forgot.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/auth/forgot.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/balance/balance.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/balance/balance.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/dashboard/dashboard.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/dashboard/dashboard.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/division/agenda.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/division/agenda.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/home.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/home.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/iam/password_requests.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/iam/password_requests.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/layout/footer.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/layout/footer.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/notification/notifications.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/notification/notifications.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/report/overview.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/report/overview.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/report/reports.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/report/reports.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/web/view/request/review.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/build/web/view/request/review.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/check_database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/check_database.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_database_simple.sql" beforeDir="false" afterPath="$PROJECT_DIR$/create_database_simple.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fix_database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/fix_database.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/leave_management_setup_v2.sql" beforeDir="false" afterPath="$PROJECT_DIR$/leave_management_setup_v2.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nbproject/build-impl.xml" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/build-impl.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nbproject/genfiles.properties" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/genfiles.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nbproject/private/private.properties" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/private/private.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nbproject/private/private.xml" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/private/private.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nbproject/project.properties" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/project.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nbproject/project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/nbproject/project.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/seed_sample_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/seed_sample_data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/conf/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/src/conf/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/admin/AdminUserListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/admin/AdminUserListController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/api/NotificationAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/api/NotificationAPI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/api/ReportAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/api/ReportAPI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/auth/ForgotPasswordController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/auth/ForgotPasswordController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/balance/BalanceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/balance/BalanceController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/dashboard/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/dashboard/DashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/division/ViewAgendaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/division/ViewAgendaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/home/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/home/HomeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/iam/AdminCreateUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/iam/AdminCreateUserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/iam/BaseRequiredAuthenticationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/iam/BaseRequiredAuthenticationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/iam/BaseRequiredAuthorizationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/iam/BaseRequiredAuthorizationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/iam/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/iam/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/iam/LogoutController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/iam/LogoutController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/iam/PasswordRequestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/iam/PasswordRequestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/index/IndexController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/index/IndexController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/notification/MarkAllReadController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/notification/MarkAllReadController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/notification/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/notification/NotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/report/OverviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/report/OverviewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/report/ReportController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/report/ReportController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/request/AttachmentUploadController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/request/AttachmentUploadController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/request/CreateController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/request/CreateController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/request/ExportCSVController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/request/ExportCSVController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/request/ListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/request/ListController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/controller/test/TestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/controller/test/TestController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/DBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/DBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/LeaveBalanceDBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/LeaveBalanceDBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/NotificationDBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/NotificationDBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/PasswordResetDBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/PasswordResetDBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/ReportDBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/ReportDBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/RequestForLeaveDBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/RequestForLeaveDBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dal/RoleDBContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dal/RoleDBContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dao/RequestDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dao/RequestDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/dao/UserDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/filter/AuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/filter/AuthFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/filter/RoleFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/filter/RoleFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/ApprovalWorkflow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/ApprovalWorkflow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/Attachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/Attachment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/AuditLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/AuditLog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/BaseModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/BaseModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/ConflictAlert.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/ConflictAlert.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/Department.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/Department.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/Employee.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/Employee.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/LeaveBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/LeaveBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/LeaveType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/LeaveType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/Notification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/Request.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/RequestForLeave.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/RequestForLeave.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/RequestHistory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/RequestHistory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/iam/Department.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/iam/Department.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/iam/Feature.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/iam/Feature.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/iam/PasswordResetRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/iam/PasswordResetRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/iam/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/iam/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/model/iam/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/model/iam/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/service/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/java/util/DBConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/java/util/DBConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/index.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/admin/user/create.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/admin/user/create.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/admin/user/list.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/admin/user/list.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/auth/forgot.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/auth/forgot.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/balance/balance.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/balance/balance.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/dashboard/dashboard.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/dashboard/dashboard.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/division/agenda.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/division/agenda.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/home.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/home.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/iam/password_requests.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/iam/password_requests.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/layout/footer.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/layout/footer.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/notification/notifications.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/notification/notifications.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/report/overview.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/report/overview.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/report/reports.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/report/reports.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/view/request/review.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/web/view/request/review.jsp" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="35CtQ9rovERcQ6OMpuTCtG2yMGZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "E:/PRJ/PRJ301-MyAssignment/FALL2025_Assignment (2)",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.27397.103" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0c605b26-7779-4519-90b1-ee9428c57867" name="Changes" comment="" />
+      <created>1762625862372</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1762625862372</updated>
+      <workItem from="1762625863722" duration="25000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

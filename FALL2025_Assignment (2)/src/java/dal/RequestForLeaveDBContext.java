@@ -578,4 +578,25 @@ public class RequestForLeaveDBContext extends DBContext {
         }
         return 0;
     }
+
+    public void cancelRequest(int requestId, int cancelledBy, String note) {
+        String sql = "UPDATE Requests SET status = 'CANCELLED', processed_by = ?, processed_at = SYSUTCDATETIME(), manager_note = ? WHERE id = ? AND status = 'INPROGRESS'";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, cancelledBy);
+            ps.setString(2, note);
+            ps.setInt(3, requestId);
+            int rowsAffected = ps.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                // Add to audit log
+                insertAudit(cancelledBy, "CANCEL", "REQUEST", requestId,
+                    "{\"status\":\"INPROGRESS\"}",
+                    "{\"status\":\"CANCELLED\",\"note\":\"" + (note == null ? "" : note.replace("\"","'")) + "\"}");
+            } else {
+                throw new RuntimeException("Request not found or not in INPROGRESS status");
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error cancelling request", ex);
+        }
+    }
 }
